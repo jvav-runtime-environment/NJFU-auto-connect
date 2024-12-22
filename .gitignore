@@ -1,0 +1,9 @@
+*.json
+*.txt
+*.exe
+
+\__pycache__
+\main.*
+\.venv
+
+!main.py

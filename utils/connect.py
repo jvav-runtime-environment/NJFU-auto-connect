@@ -1,0 +1,68 @@
+"""负责与登录服务器沟通"""
+
+import json
+import requests
+import logging as lg
+
+from utils import network
+from utils import configManager
+
+config = configManager.get_config()
+
+ip = config["serverip"]
+platform = config["platform"]  # 平台
+login_api = config["login_api"]  # 登录api
+check_url = config["check_url"]  # 检查登录是否成功
+
+
+def get_json_data(text: str):
+    # 获取text中大括号包括的内容
+    start = text.find("{")
+    end = text.rfind("}")
+    return text[start : end + 1]
+
+
+def login(username, password, platform):
+    # 登录的主要逻辑
+    global login_api
+    data = {
+        "callback": "dr1003",
+        "login_method": "1",
+        "user_account": ",0," + username + platform,
+        "user_password": password,
+        "wlan_user_ip": network.get_ip(),
+        "wlan_user_ipv6": "",
+        "wlan_user_mac": network.get_mac(),
+        "wlan_ac_ip": "",
+        "wlan_ac_name": "",
+        "jsVersion": "4.2.2",
+        "terminal_type": "1",
+        "lang": "zh-cn",
+        "v": "1111",
+        "lang": "zh",
+    }
+    lg.info(f"当前使用的登录系统版本: {data['jsVersion']}")
+
+    r = requests.get(login_api, params=data)
+
+    lg.info(f"<{login_api}> 响应代码: {r.status_code}")
+    lg.debug(f"<{login_api}> 原始响应: {r.text}")
+
+    r_json = json.loads(get_json_data(r.text))
+    if r_json["result"]:
+        return [True, ""]
+    else:
+        return [False, r_json["msg"]]
+
+
+def is_connected():
+    # 检查是否已经登录
+    global check_url
+    r = requests.get(check_url)
+
+    lg.info(f"<{check_url}> 响应代码: {r.status_code}")
+    lg.debug(f"<{check_url}> 原始响应: {r.text}")
+
+    if "上网登录页" in r.text:
+        return False
+    return True

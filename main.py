@@ -31,12 +31,11 @@ lg.basicConfig(
 )
 
 
-from utils import configManager, createStartUp, network, connect
+from utils import configManager, network, connect
 import UI
 
 
 config = configManager.get_config()
-startup = config["startup"]
 
 
 def connect_instant():
@@ -52,19 +51,6 @@ def connect_instant():
         notify("连接成功", "成功连接到校园网")
     else:
         notify("连接失败", "原因: " + msg)
-
-
-def set_startup(bool):
-    # 设置启动项
-    global config
-
-    if config["startup"] != bool:
-        config["startup"] = bool
-
-        if bool:
-            createStartUp.create()
-        else:
-            createStartUp.remove()
 
 
 def login_proc():

@@ -1,3 +1,4 @@
+import sys
 from utils import lock
 
 if not lock.can_create():
@@ -5,7 +6,6 @@ if not lock.can_create():
 
 
 import time
-import sys
 import requests
 import threading
 import traceback
@@ -87,16 +87,15 @@ def login_proc():
             time.sleep(int(interval * 60))
 
         except requests.ConnectionError:
-            lg.warning(f"[登录线程] 连接错误: {traceback.format_exc()}")
+            lg.warning("[登录线程] 连接错误: ", exc_info=True)
 
             # 询问是否重试
-            if not messagebox.askretrycancel("连接失败", f"无法连接到服务器: \n{e}"):
+            if not messagebox.askretrycancel("连接失败", f"无法连接到服务器: \n{traceback.format_exc()}"):
                 break
 
         except Exception:
-            e = traceback.format_exc()
-            lg.error(f"[登录线程] 未知错误: {e}")
-            messagebox.showerror("未知的内部错误\n", e)
+            lg.error("[登录线程] 未知错误: ", exc_info=True)
+            messagebox.showerror("未知的内部错误\n", traceback.format_exc())
             break
 
 
@@ -143,7 +142,7 @@ def notify(title, message):
             time.sleep(5)
             tray.remove_notification()
         except Exception:
-            lg.error(f"[通知线程] 未知错误: {traceback.format_exc()}")
+            lg.error("[通知线程] 未知错误: ", exc_info=True)
 
     notify_thread = threading.Thread(target=notify_proc)
     notify_thread.daemon = True
@@ -163,8 +162,7 @@ def start_ui_thread():
             ui.window.mainloop()
             lg.info("[UI线程] UI线程已结束")
         except Exception:
-            e = traceback.format_exc()
-            lg.error(f"[UI线程] 未知错误: {e}")
+            lg.error("[UI线程] 未知错误: ", exc_info=True)
 
     ui_thread = threading.Thread(target=ui_proc)
     ui_thread.daemon = True
@@ -196,6 +194,5 @@ try:
     tray.run()
 
 except Exception:
-    e = traceback.format_exc()
-    lg.error(f"未知错误: {e}")
-    messagebox.showerror("未知的内部错误\n", e)
+    lg.error("未知错误: ", exc_info=True)
+    messagebox.showerror("未知的内部错误\n", traceback.format_exc())

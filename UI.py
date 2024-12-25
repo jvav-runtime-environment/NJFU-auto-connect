@@ -59,7 +59,7 @@ class UI:
         ttk.Entry(frame, textvariable=self.platform_var, width=30).grid(row=3, column=1, padx=5, pady=5)
 
         # 定时刷新间隔
-        ttk.Label(frame, text="间隔时间(秒):").grid(row=4, column=0, sticky="w", padx=5, pady=5)
+        ttk.Label(frame, text="间隔时间(分钟):").grid(row=4, column=0, sticky="w", padx=5, pady=5)
         self.interval_var = tk.IntVar(value=self.config["interval"])
         ttk.Entry(frame, textvariable=self.interval_var, width=30).grid(row=4, column=1, padx=5, pady=5)
 

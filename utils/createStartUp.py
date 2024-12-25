@@ -12,14 +12,14 @@ except NameError:
 
 
 startup = Path(f"{os.environ.get('APPDATA')}\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\conn.bat")
-current_dir = Path(__file__).parent
+current_dir = Path(".").absolute()
 
 # 判断是否为打包的程序
 # 释放自启动bat
 if is_exe:
-    startup_cmd = f"cd /d {current_dir}\nstart {current_dir}\\connect.exe"  # type: ignore
+    startup_cmd = f"cd /d {current_dir}\nstart connect.exe"
 else:
-    startup_cmd = f"cd /d {current_dir}\nstart pythonw {current_dir}\\main.py"
+    startup_cmd = f"cd /d {current_dir}\nstart pythonw main.py"
 
 lg.info(f"当前运行为 {'exe'if is_exe else 'source'} 版本")
 

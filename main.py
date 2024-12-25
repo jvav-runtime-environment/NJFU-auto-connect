@@ -1,3 +1,9 @@
+from utils import lock
+
+if not lock.can_create():
+    sys.exit(0)
+
+
 import time
 import sys
 import requests
@@ -25,13 +31,8 @@ lg.basicConfig(
 )
 
 
-from utils import lock, configManager, createStartUp, network, connect
+from utils import configManager, createStartUp, network, connect
 import UI
-
-
-if not lock.can_create():
-    lg.info("已有其他实例在运行, 程序退出")
-    sys.exit(0)
 
 
 config = configManager.get_config()

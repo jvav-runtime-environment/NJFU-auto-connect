@@ -21,7 +21,7 @@ if is_exe:
 else:
     startup_cmd = f"cd /d {current_dir}\nstart pythonw main.py"
 
-lg.info(f"当前运行为 {'exe'if is_exe else 'source'} 版本")
+lg.info(f"当前运行为 {'打包'if is_exe else '源代码'} 版本")
 
 
 def create():
@@ -29,7 +29,8 @@ def create():
         startup.touch()
     if startup.read_text() != startup_cmd:
         startup.write_text(startup_cmd)
-    lg.info(f"已创建启动项, 命令: {startup_cmd}")
+    lg.info(f"已创建启动项")
+    lg.debug(f"启动项内容: {startup_cmd}")
 
 
 def remove():

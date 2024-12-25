@@ -16,8 +16,9 @@ from tkinter import messagebox
 current_dir = Path(__file__).parent
 
 # 清理log文件
+MAX_LOG_SIZE = 50 * 1024
 log_path = current_dir / "log.txt"
-if log_path.exists() and log_path.stat().st_size > 50 * 1024:
+if log_path.exists() and log_path.stat().st_size > MAX_LOG_SIZE:
     log_path.unlink()
 
 

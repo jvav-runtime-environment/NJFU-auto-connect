@@ -40,11 +40,11 @@ def is_the_wifi(name):
 
 def get_mac():
     mac = hex(uuid.getnode())[2:]
-    lg.info(f"本机MAC地址: {mac}")
+    lg.debug(f"本机MAC地址: {mac}")
     return mac
 
 
 def get_ip():
     ip = socket.gethostbyname(socket.gethostname())
-    lg.info(f"本机IP地址: {ip}")
+    lg.debug(f"本机IP地址: {ip}")
     return ip

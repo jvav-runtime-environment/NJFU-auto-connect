@@ -45,8 +45,8 @@ def login(username, password, platform):
 
     r = requests.get(login_api, params=data)
 
-    lg.info(f"<{login_api}> 响应代码: {r.status_code}")
-    lg.debug(f"<{login_api}> 原始响应: {r.text}")
+    lg.info(f"登录服务器响应代码: {r.status_code}")
+    lg.debug(f"登录服务器原始响应: {r.text}")
 
     r_json = json.loads(get_json_data(r.text))
     if r_json["result"]:
@@ -60,8 +60,8 @@ def is_connected():
     global check_url
     r = requests.get(check_url)
 
-    lg.info(f"<{check_url}> 响应代码: {r.status_code}")
-    lg.debug(f"<{check_url}> 原始响应: {r.text}")
+    lg.info(f"检测服务器响应代码: {r.status_code}")
+    lg.debug(f"检测服务器原始响应: {r.text}")
 
     if "上网登录页" in r.text:
         return False

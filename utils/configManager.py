@@ -18,7 +18,7 @@ def get_config():
 
 def get_raw_config():
     # 返回未解析的原始设置
-    return json.loads(config_path.read_text())
+    return raw_config
 
 
 def load_config():
@@ -49,7 +49,8 @@ def load_config():
         lg.warning("配置管理器 -> 错误信息\n", exc_info=True)
 
         # 解析默认配置
-        config = get_default()
+        raw_config = get_default()
+        config = copy.deepcopy(raw_config)
         config["login_api"] = config["login_api"].format(serverip=config["serverip"])
         config["check_url"] = config["check_url"].format(serverip=config["serverip"])
         return config
@@ -61,9 +62,7 @@ def load_config():
 def save_config(config):
     # 保存配置文件
     lg.info("配置管理器 -> 保存配置文件")
-    with config_path.open("w", encoding="utf-8") as f:
-        json.dump(config, f)
-        json.dump(config, f)
+    config_path.write_text(json.dumps(config))
     lg.info("配置管理器 -> 保存完成")
 
 

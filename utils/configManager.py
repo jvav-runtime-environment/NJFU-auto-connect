@@ -54,7 +54,7 @@ def load_config():
         config["check_url"] = config["check_url"].format(serverip=config["serverip"])
         return config
 
-    lg.debug("配置管理器 -> 读取完成")
+    lg.info("配置管理器 -> 读取完成")
     return config
 
 

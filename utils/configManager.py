@@ -4,11 +4,11 @@ import copy
 import json
 import traceback
 import logging as lg
-from pathlib import Path
+from utils import pathManager
 
 inited = False
 if not inited:  # 防止多次加载导致覆盖
-    config_path = Path().cwd() / "config.json"
+    config_path = pathManager.config_path
     basic_config = {
         "username": "",
         "password": "",

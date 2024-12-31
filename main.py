@@ -1,5 +1,5 @@
 import sys
-from utils import lock
+from utils import lock, pathManager
 
 if not lock.can_create():
     sys.exit(0)
@@ -10,20 +10,17 @@ import requests
 import threading
 import traceback
 import logging as lg
-from pathlib import Path
 from tkinter import messagebox
 
-current_dir = Path(__file__).parent
 
 # 清理log文件
 MAX_LOG_SIZE = 50 * 1024
-log_path = current_dir / "log.txt"
-if log_path.exists() and log_path.stat().st_size > MAX_LOG_SIZE:
-    log_path.unlink()
+if pathManager.log_path.exists() and pathManager.log_path.stat().st_size > MAX_LOG_SIZE:
+    pathManager.log_path.unlink()
 
 
 lg.basicConfig(
-    filename="log.txt",
+    filename=pathManager.log_path,
     filemode="a",
     level=lg.INFO,
     format="[%(asctime)s] [%(levelname)s] %(message)s",
@@ -156,7 +153,6 @@ def stop_tray():
 
 
 def start_ui_thread():
-
     def ui_proc():
         try:
             ui = UI.UI(configManager.get_raw_config())
@@ -173,7 +169,7 @@ def start_ui_thread():
 
 # 运行入口(主循环)
 try:
-    icon = Image.open(current_dir / "icon.png")
+    icon = Image.open(pathManager.icon_path)
     running_menu = Menu(
         MenuItem("运行", run_main_thread, enabled=False),
         MenuItem("停止", stop_main_thread),

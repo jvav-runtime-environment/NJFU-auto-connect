@@ -4,6 +4,7 @@ import os
 import winreg
 import logging as lg
 from pathlib import Path
+from utils import pathManager
 
 try:
     if __nuitka_binary_dir is not None:  # type: ignore
@@ -13,16 +14,17 @@ except NameError:
 
 
 startup = Path(f"{os.environ.get('APPDATA')}\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\conn.bat")
-current_dir = Path(".").absolute()
+current_dir = pathManager.current_dir
 
 # 判断是否为打包的程序
 # 释放自启动bat
 if is_exe:
-    startup_cmd = f"cd /d {current_dir}\nstart connect.exe"
+    startup_cmd = f'"{current_dir}\\connect.exe"'
 else:
     startup_cmd = f"cd /d {current_dir}\nstart pythonw main.py"
 
 lg.info(f"当前运行为 {'打包'if is_exe else '源代码'} 版本")
+startup_cmd = f'"{current_dir}\\connect.exe"'
 
 
 def create_bat():
@@ -44,8 +46,8 @@ def create_regesitry():
     try:
         key = winreg.HKEY_CURRENT_USER
         sub_key = "Software\\Microsoft\\Windows\\CurrentVersion\\Run"
-        with winreg.OpenKey(key, sub_key, 0, winreg.KEY_WRITE) as key:
-            winreg.SetValueEx(key, "NJFU-auto-connect", 0, winreg.REG_SZ, f'"{current_dir}\\connect.exe"')
+        with winreg.OpenKey(key, sub_key, 0, winreg.KEY_ALL_ACCESS) as key:
+            winreg.SetValueEx(key, "NJFUAutoConnect", 0, winreg.REG_SZ, startup_cmd)
         lg.info(f"已创建注册表启动项")
 
     except Exception:
@@ -56,9 +58,12 @@ def remove_regesitry():
     try:
         key = winreg.HKEY_CURRENT_USER
         sub_key = "Software\\Microsoft\\Windows\\CurrentVersion\\Run"
-        with winreg.OpenKey(key, sub_key, 0, winreg.KEY_WRITE) as key:
-            winreg.DeleteValue(key, "NJFU-auto-connect")
+        with winreg.OpenKey(key, sub_key, 0, winreg.KEY_ALL_ACCESS) as key:
+            winreg.DeleteValue(key, "NJFUAutoConnect")
         lg.info(f"已移除注册表启动项")
+
+    except FileNotFoundError:
+        lg.info(f"未找到注册表启动项")
 
     except Exception:
         lg.error(f"移除注册表启动项失败: ", exc_info=True)

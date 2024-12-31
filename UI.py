@@ -65,7 +65,6 @@ class UI:
 
         # 启动时运行
         ttk.Label(frame, text="开机自启:").grid(row=5, column=0, sticky="w", padx=5, pady=5)
-        self.startup_var = tk.BooleanVar(value=self.config["startup"])
         self.startup_button = ttk.Button(frame, text="移除启动项" if self.config["startup"] else "创建启动项", command=self.create_startup)
         self.startup_button.grid(row=5, column=1, padx=5, pady=5)
 
@@ -139,7 +138,6 @@ class UI:
             self.config["wifiname"] = self.wifiname_var.get()
             self.config["platform"] = self.platform_var.get()
             self.config["interval"] = self.interval_var.get()
-            self.config["startup"] = self.startup_var.get()
 
             configManager.save_config(self.config)
             messagebox.showinfo("保存设置", "设置已保存")
@@ -158,7 +156,6 @@ class UI:
             self.wifiname_var.set(self.config["wifiname"])
             self.platform_var.set(self.config["platform"])
             self.interval_var.set(self.config["interval"])
-            self.startup_var.set(self.config["startup"])
 
             self.save_config()
             messagebox.showinfo("恢复默认", "设置已恢复默认")

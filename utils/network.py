@@ -11,7 +11,7 @@ def get_wifi_info():
         ["netsh", "wlan", "show", "interfaces"], stdout=subprocess.PIPE, text=True, creationflags=subprocess.CREATE_NO_WINDOW, encoding="utf-8"
     )
     info = result.stdout.read().replace(" ", "").split("\n")
-    lg.debug(f"获取到的网络信息: {info}")
+    lg.debug(f"网络状态 -> 信息:\n{info}")
 
     dic = {}
     for i in info:
@@ -40,11 +40,11 @@ def is_the_wifi(name):
 
 def get_mac():
     mac = hex(uuid.getnode())[2:]
-    lg.debug(f"本机MAC地址: {mac}")
+    lg.debug(f"网络状态 -> MAC地址:\n{mac}")
     return mac
 
 
 def get_ip():
     ip = socket.gethostbyname(socket.gethostname())
-    lg.debug(f"本机IP地址: {ip}")
+    lg.debug(f"网络状态 -> IP地址:\n{ip}")
     return ip

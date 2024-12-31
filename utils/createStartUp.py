@@ -19,7 +19,7 @@ if is_exe:
 else:
     startup_cmd = f'"{sys.executable}" "{current_dir}\\main.py"'
 
-lg.info(f"当前运行为 {'打包'if is_exe else '源代码'} 版本")
+lg.info(f"启动项 -> 版本: {'打包'if is_exe else '源代码'}")
 
 
 def create():
@@ -28,10 +28,11 @@ def create():
         sub_key = "Software\\Microsoft\\Windows\\CurrentVersion\\Run"
         with winreg.OpenKey(key, sub_key, 0, winreg.KEY_ALL_ACCESS) as key:
             winreg.SetValueEx(key, "NJFUAutoConnect", 0, winreg.REG_SZ, startup_cmd)
-        lg.info(f"已创建注册表启动项")
+        lg.info("启动项 -> 已创建")
 
     except Exception:
-        lg.error(f"创建注册表启动项失败: ", exc_info=True)
+        lg.error("启动项 -> 创建失败")
+        lg.error(f"启动项 -> 错误信息:\n", exc_info=True)
 
 
 def remove():
@@ -40,16 +41,11 @@ def remove():
         sub_key = "Software\\Microsoft\\Windows\\CurrentVersion\\Run"
         with winreg.OpenKey(key, sub_key, 0, winreg.KEY_ALL_ACCESS) as key:
             winreg.DeleteValue(key, "NJFUAutoConnect")
-        lg.info(f"已移除注册表启动项")
+        lg.info("启动项 -> 已移除")
 
     except FileNotFoundError:
-        lg.info(f"未找到注册表启动项")
+        lg.warning(f"启动项 -> 移除中未找到键值")
 
     except Exception:
-        lg.error(f"移除注册表启动项失败: ", exc_info=True)
-
-
-if __name__ == "__main__":
-    create()
-    input()
-    remove()
+        lg.error("启动项 -> 移除失败")
+        lg.error(f"启动项 -> 错误信息:\n", exc_info=True)

@@ -17,6 +17,7 @@ check_url = config["check_url"]  # 检查登录是否成功
 
 def get_json_data(text: str):
     # 获取text中大括号包括的内容
+    lg.debug(f"登录(文本处理) -> 原始数据: {text}")
     start = text.find("{")
     end = text.rfind("}")
     return text[start : end + 1]
@@ -41,12 +42,12 @@ def login(username, password, platform):
         "v": "1111",
         "lang": "zh",
     }
-    lg.info(f"当前使用的登录系统版本: {data['jsVersion']}")
+    lg.info(f"登录 -> js版本: {data['jsVersion']}")
 
     r = requests.get(login_api, params=data)
-
-    lg.info(f"登录服务器响应代码: {r.status_code}")
-    lg.debug(f"登录服务器原始响应: {r.text}")
+    lg.info(f"登录 -> 响应代码: {r.status_code}")
+    lg.debug(f"登录 -> 原始响应: {r.text}")
+    r.raise_for_status()
 
     r_json = json.loads(get_json_data(r.text))
     if r_json["result"]:
@@ -59,9 +60,9 @@ def is_connected():
     # 检查是否已经登录
     global check_url
     r = requests.get(check_url)
-
-    lg.info(f"检测服务器响应代码: {r.status_code}")
-    lg.debug(f"检测服务器原始响应: {r.text}")
+    lg.info(f"登录(检测) -> 响应代码: {r.status_code}")
+    lg.debug(f"登录(检测) -> 原始响应: {r.text}")
+    r.raise_for_status()
 
     if "上网登录页" in r.text:
         return False

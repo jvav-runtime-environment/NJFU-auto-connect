@@ -68,16 +68,18 @@ def login_proc():
 
             time.sleep(int(interval * 60))
 
-        except requests.ConnectionError:
-            lg.warning("[登录线程] 连接错误: ", exc_info=True)
+        except (requests.ConnectionError, requests.HTTPError):
+            lg.warning("登录线程 -> 连接错误")
+            lg.warning("登录线程 -> 错误信息:\n", exc_info=True)
 
             # 询问是否重试
-            if not messagebox.askretrycancel("连接失败", f"无法连接到服务器: \n{traceback.format_exc()}"):
+            if not messagebox.askretrycancel("连接失败", f"无法连接到服务器:\n{traceback.format_exc()}"):
                 break
 
         except Exception:
-            lg.error("[登录线程] 未知错误: ", exc_info=True)
-            messagebox.showerror("未知的内部错误\n", traceback.format_exc())
+            lg.error("登录线程 -> 未知错误")
+            lg.error("登录线程 -> 错误信息:\n", exc_info=True)
+            messagebox.showerror("未知的内部错误:\n", traceback.format_exc())
             break
 
 
@@ -105,7 +107,7 @@ def run_work_thread():
         tray.menu = running_menu
         tray.update_menu()
 
-    lg.info("任务线程启动")
+    lg.info("主任务 -> 启动")
 
 
 def stop_work_thread():
@@ -114,7 +116,7 @@ def stop_work_thread():
 
     tray.menu = stopped_menu
     tray.update_menu()
-    lg.info("任务线程结束")
+    lg.info("主任务 -> 结束")
 
 
 def notify(title, message):
@@ -124,7 +126,8 @@ def notify(title, message):
             time.sleep(5)
             tray.remove_notification()
         except Exception:
-            lg.error("[通知线程] 未知错误: ", exc_info=True)
+            lg.error("通知线程 -> 未知错误")
+            lg.error("通知线程 -> 错误信息:\n", exc_info=True)
 
     notify_thread = threading.Thread(target=notify_proc)
     notify_thread.daemon = True
@@ -133,7 +136,7 @@ def notify(title, message):
 
 def stop_tray():
     tray.stop()
-    lg.info("程序已结束")
+    lg.info("主程序 -> 结束")
 
 
 def start_ui_thread():
@@ -141,14 +144,15 @@ def start_ui_thread():
         try:
             ui = UI.UI(configManager.get_raw_config())
             ui.window.mainloop()
-            lg.info("[UI线程] UI线程已结束")
+            lg.info("UI线程 -> 结束")
         except Exception:
-            lg.error("[UI线程] 未知错误: ", exc_info=True)
+            lg.error("UI线程 -> 未知错误")
+            lg.error("UI线程 -> 错误信息:\n", exc_info=True)
 
     ui_thread = threading.Thread(target=ui_proc)
     ui_thread.daemon = True
     ui_thread.start()
-    lg.info("[UI线程] UI线程已启动")
+    lg.info("UI线程 -> 启动")
 
 
 # 运行入口(主循环)
@@ -175,5 +179,6 @@ try:
     tray.run()
 
 except Exception:
-    lg.error("未知错误: ", exc_info=True)
-    messagebox.showerror("未知的内部错误\n", traceback.format_exc())
+    lg.error("主程序 -> 未知错误")
+    lg.error("主程序 -> 错误信息:\n", exc_info=True)
+    messagebox.showerror("未知的内部错误:\n", traceback.format_exc())

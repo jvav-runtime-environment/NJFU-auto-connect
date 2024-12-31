@@ -2,7 +2,6 @@
 
 import sys
 import pathlib
-import logging as lg
 
 inited = False
 if not inited:
@@ -13,5 +12,4 @@ if not inited:
     log_path = current_dir / "log.txt"
     config_path = current_dir / "config.json"
 
-    lg.debug(f"当前路径: {current_dir}")
-    lg.debug(f"临时路径: {temp_dir}")
+    inited = True

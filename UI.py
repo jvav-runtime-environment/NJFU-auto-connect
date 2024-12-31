@@ -1,16 +1,16 @@
-from pathlib import Path
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
-import ctypes
-
-# 匹配分辨率
-ctypes.windll.shcore.SetProcessDpiAwareness(1)
-ScaleFactor = ctypes.windll.shcore.GetScaleFactorForDevice(0)
 
 from utils import configManager
 from utils import createStartUp
 from utils.pathManager import icon_path
+
+# 匹配分辨率
+import ctypes
+
+ctypes.windll.shcore.SetProcessDpiAwareness(1)
+ScaleFactor = ctypes.windll.shcore.GetScaleFactorForDevice(0)
 
 
 class UI:

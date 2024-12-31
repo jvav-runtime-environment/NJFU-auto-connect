@@ -13,13 +13,14 @@ except NameError:
 
 
 # 判断是否为打包的程序
-# 释放自启动bat
+# 创建对应注册表值
 if is_exe:
     startup_cmd = f'"{exe_path}"'
 else:
     startup_cmd = f'"{sys.executable}" "{current_dir}\\main.py"'
 
 lg.info(f"启动项 -> 版本: {'打包'if is_exe else '源代码'}")
+lg.debug(f"启动项 -> 启动路径: {startup_cmd}")
 
 
 def create():

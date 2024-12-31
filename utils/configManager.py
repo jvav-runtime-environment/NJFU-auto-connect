@@ -5,33 +5,15 @@ import json
 import logging as lg
 from utils.pathManager import config_path
 
-inited = False
-if not inited:  # 防止多次加载导致覆盖
-    lg.info("配置管理器 -> 初始化")
-    config_path = config_path
-    basic_config = {
-        "username": "",
-        "password": "",
-        "serverip": "10.51.2.20",
-        "login_api": "http://{serverip}:801/eportal/portal/login",
-        "check_url": "http://{serverip}",
-        "wifiname": "CMCC-EDU",
-        "platform": "@cmcc",
-        "interval": 10,
-        "startup": False,
-    }
-
-    if not config_path.exists():
-        lg.warning("配置管理器 -> 配置文件不存在, 创建默认配置文件")
-        config_path.touch()
-        config_path.write_text(json.dumps(basic_config))
-
-    lg.info("配置管理器 -> 初始化完成")
-    inited = True
-
 
 def get_default():
+    # 返回默认配置
     return copy.deepcopy(basic_config)
+
+
+def get_config():
+    # 返回已解析的配置
+    return config
 
 
 def get_raw_config():
@@ -39,10 +21,15 @@ def get_raw_config():
     return json.loads(config_path.read_text())
 
 
-def get_config():
+def load_config():
+    # 读取配置文件
     lg.info("配置管理器 -> 读取配置文件")
+    global config
+    global raw_config
+
     try:
-        config = json.loads(config_path.read_text())
+        raw_config = json.loads(config_path.read_text())
+        config = copy.deepcopy(raw_config)
         config["login_api"] = config["login_api"].format(serverip=config["serverip"])
         config["check_url"] = config["check_url"].format(serverip=config["serverip"])
 
@@ -72,6 +59,34 @@ def get_config():
 
 
 def save_config(config):
+    # 保存配置文件
     lg.info("配置管理器 -> 保存配置文件")
-    json.dump(config, open(config_path, "w", encoding="utf-8"))
+    with config_path.open("w", encoding="utf-8") as f:
+        json.dump(config, f)
+        json.dump(config, f)
     lg.info("配置管理器 -> 保存完成")
+
+
+config = None
+raw_config = None
+
+lg.info("配置管理器 -> 初始化")
+basic_config = {  # 默认配置
+    "username": "",
+    "password": "",
+    "serverip": "10.51.2.20",
+    "login_api": "http://{serverip}:801/eportal/portal/login",
+    "check_url": "http://{serverip}",
+    "wifiname": "CMCC-EDU",
+    "platform": "@cmcc",
+    "interval": 10,
+    "startup": False,
+}
+
+if not config_path.exists():
+    lg.warning("配置管理器 -> 配置文件不存在, 创建默认配置文件")
+    config_path.touch()
+    config_path.write_text(json.dumps(basic_config))
+
+config = load_config()
+lg.info("配置管理器 -> 初始化完成")

@@ -26,6 +26,7 @@ def get_json_data(text: str):
 def login(username, password, platform):
     # 登录的主要逻辑
     global login_api
+
     data = {
         "callback": "dr1003",
         "login_method": "1",
@@ -59,6 +60,7 @@ def login(username, password, platform):
 def is_connected():
     # 检查是否已经登录
     global check_url
+
     r = requests.get(check_url)
     lg.info(f"登录(检测) -> 响应代码: {r.status_code}")
     lg.debug(f"登录(检测) -> 原始响应: {r.text}")

@@ -8,10 +8,6 @@ kernel32 = ctypes.windll.kernel32
 def can_create():
     mutex = kernel32.CreateMutexA(None, False, "NJFU-auto-connect".encode("utf-8"))
 
-    if mutex == 0:
+    if not mutex or kernel32.GetLastError() == 183:
         return False
-
-    if ctypes.GetLastError() == 183:
-        return False
-    else:
-        return True
+    return True

@@ -3,15 +3,12 @@
 import sys
 import pathlib
 
-inited = False
-if not inited:
-    temp_dir = pathlib.Path(__file__).parent.parent
-    current_dir = pathlib.Path(sys.argv[0]).parent
 
-    exe_path = pathlib.Path(sys.argv[0])
+temp_dir = pathlib.Path(__file__).parent.parent
+current_dir = pathlib.Path(sys.argv[0]).parent
 
-    icon_path = temp_dir / "icon.png"
-    log_path = current_dir / "log.txt"
-    config_path = current_dir / "config.json"
+exe_path = pathlib.Path(sys.argv[0])
 
-    inited = True
+icon_path = temp_dir / "icon.png"
+log_path = current_dir / "log.txt"
+config_path = current_dir / "config.json"

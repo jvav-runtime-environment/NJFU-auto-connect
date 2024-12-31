@@ -156,6 +156,7 @@ class UI:
             self.wifiname_var.set(self.config["wifiname"])
             self.platform_var.set(self.config["platform"])
             self.interval_var.set(self.config["interval"])
+            self.startup_button.config(text="创建启动项" if not self.config["startup"] else "移除启动项")
 
-            self.save_config()
+            configManager.save_config(self.config)
             messagebox.showinfo("恢复默认", "设置已恢复默认")

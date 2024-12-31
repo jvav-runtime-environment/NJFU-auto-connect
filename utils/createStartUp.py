@@ -1,6 +1,7 @@
 """负责管理开机自启动"""
 
 import os
+import winreg
 import logging as lg
 from pathlib import Path
 
@@ -24,7 +25,7 @@ else:
 lg.info(f"当前运行为 {'打包'if is_exe else '源代码'} 版本")
 
 
-def create():
+def create_bat():
     if not startup.exists():
         startup.touch()
     if startup.read_text() != startup_cmd:
@@ -33,7 +34,51 @@ def create():
     lg.debug(f"启动项内容: {startup_cmd}")
 
 
-def remove():
+def remove_bat():
     if startup.exists():
         startup.unlink()
     lg.info("已移除启动项")
+
+
+def create_regesitry():
+    try:
+        key = winreg.HKEY_CURRENT_USER
+        sub_key = "Software\\Microsoft\\Windows\\CurrentVersion\\Run"
+        with winreg.OpenKey(key, sub_key, 0, winreg.KEY_WRITE) as key:
+            winreg.SetValueEx(key, "NJFU-auto-connect", 0, winreg.REG_SZ, f'"{current_dir}\\connect.exe"')
+        lg.info(f"已创建注册表启动项")
+
+    except Exception:
+        lg.error(f"创建注册表启动项失败: ", exc_info=True)
+
+
+def remove_regesitry():
+    try:
+        key = winreg.HKEY_CURRENT_USER
+        sub_key = "Software\\Microsoft\\Windows\\CurrentVersion\\Run"
+        with winreg.OpenKey(key, sub_key, 0, winreg.KEY_WRITE) as key:
+            winreg.DeleteValue(key, "NJFU-auto-connect")
+        lg.info(f"已移除注册表启动项")
+
+    except Exception:
+        lg.error(f"移除注册表启动项失败: ", exc_info=True)
+
+
+def create():
+    if is_exe:
+        create_regesitry()
+    else:
+        create_bat()
+
+
+def remove():
+    if is_exe:
+        remove_regesitry()
+    else:
+        remove_bat()
+
+
+if __name__ == "__main__":
+    create_regesitry()
+    input()
+    remove_regesitry()

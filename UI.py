@@ -4,20 +4,19 @@ from tkinter import ttk
 from tkinter import messagebox
 import ctypes
 
-current_dir = Path(__file__).parent
-
 # 匹配分辨率
 ctypes.windll.shcore.SetProcessDpiAwareness(1)
 ScaleFactor = ctypes.windll.shcore.GetScaleFactorForDevice(0)
 
 from utils import configManager
 from utils import createStartUp
+from utils.pathManager import icon_path
 
 
 class UI:
     def __init__(self, config):
         self.window = tk.Tk()
-        self.window.iconphoto(True, tk.PhotoImage(file=current_dir / "icon.png"))
+        self.window.iconphoto(True, tk.PhotoImage(file=icon_path))
         self.window.tk.call("tk", "scaling", ScaleFactor / 75)
         self.window.title("配置设置")
 

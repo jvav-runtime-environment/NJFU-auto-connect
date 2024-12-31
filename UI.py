@@ -66,7 +66,8 @@ class UI:
         # 启动时运行
         ttk.Label(frame, text="开机自启:").grid(row=5, column=0, sticky="w", padx=5, pady=5)
         self.startup_var = tk.BooleanVar(value=self.config["startup"])
-        self.setup_check = ttk.Checkbutton(frame, variable=self.startup_var, command=self.create_startup).grid(row=5, column=1, padx=5, pady=5)
+        self.startup_button = ttk.Button(frame, text="移除启动项" if self.config["startup"] else "创建启动项", command=self.create_startup)
+        self.startup_button.grid(row=5, column=1, padx=5, pady=5)
 
     def create_advanced_settings(self):
         """创建高级设置项"""
@@ -90,15 +91,15 @@ class UI:
         ttk.Entry(self.advanced_frame, textvariable=self.check_url_var, width=30).grid(row=2, column=1, padx=5, pady=5)
 
     def create_startup(self):
-        creat = self.startup_var.get()
 
-        if self.config["startup"] != creat:
-            self.config["startup"] = creat
+        self.config["startup"] = not self.config["startup"]
 
-            if creat:
-                createStartUp.create()
-            else:
-                createStartUp.remove()
+        if self.config["startup"]:
+            createStartUp.create()
+            self.startup_button.config(text="移除启动项")
+        else:
+            createStartUp.remove()
+            self.startup_button.config(text="创建启动项")
 
     def create_action_buttons(self):
         """创建保存设置和恢复默认按钮"""

@@ -1,5 +1,5 @@
 import sys
-from utils import lock, pathManager
+from utils import lock
 
 if not lock.can_create():
     sys.exit(0)
@@ -12,24 +12,8 @@ import traceback
 import logging as lg
 from tkinter import messagebox
 
-
-# 清理log文件
-MAX_LOG_SIZE = 50 * 1024
-if pathManager.log_path.exists() and pathManager.log_path.stat().st_size > MAX_LOG_SIZE:
-    pathManager.log_path.unlink()
-
-
-lg.basicConfig(
-    filename=pathManager.log_path,
-    filemode="a",
-    level=lg.INFO,
-    format="[%(asctime)s] [%(levelname)s] %(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S",
-    encoding="utf-8",
-)
-
-
-from utils import configManager, network, connect
+from utils import logManager
+from utils import configManager, network, connect, pathManager
 import UI
 
 
@@ -104,19 +88,19 @@ running = True
 main_thread = threading.Thread(target=login_proc)
 
 
-def create_main_thread():
+def create_work_thread():
     global main_thread
     main_thread = threading.Thread(target=login_proc)
     main_thread.daemon = True
     main_thread.start()
 
 
-def run_main_thread():
+def run_work_thread():
     global running, main_thread
     running = True
 
     if not main_thread.is_alive():
-        create_main_thread()
+        create_work_thread()
 
         tray.menu = running_menu
         tray.update_menu()
@@ -124,7 +108,7 @@ def run_main_thread():
     lg.info("任务线程启动")
 
 
-def stop_main_thread():
+def stop_work_thread():
     global running
     running = False
 
@@ -171,15 +155,15 @@ def start_ui_thread():
 try:
     icon = Image.open(pathManager.icon_path)
     running_menu = Menu(
-        MenuItem("运行", run_main_thread, enabled=False),
-        MenuItem("停止", stop_main_thread),
+        MenuItem("运行", run_work_thread, enabled=False),
+        MenuItem("停止", stop_work_thread),
         MenuItem("立即连接", connect_instant),
         MenuItem("设置", start_ui_thread),
         MenuItem("退出", stop_tray),
     )
     stopped_menu = Menu(
-        MenuItem("运行", run_main_thread),
-        MenuItem("停止", stop_main_thread, enabled=False),
+        MenuItem("运行", run_work_thread),
+        MenuItem("停止", stop_work_thread, enabled=False),
         MenuItem("立即连接", connect_instant),
         MenuItem("设置", start_ui_thread),
         MenuItem("退出", stop_tray),
@@ -187,7 +171,7 @@ try:
 
     tray = Icon("linking", icon=icon, menu=running_menu, title="校园网自动连接")
 
-    create_main_thread()
+    create_work_thread()
     tray.run()
 
 except Exception:

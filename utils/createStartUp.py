@@ -3,7 +3,7 @@
 import sys
 import winreg
 import logging as lg
-from utils.pathManager import current_dir
+from utils.pathManager import current_dir, exe_path
 
 try:
     if __nuitka_binary_dir is not None:  # type: ignore
@@ -15,7 +15,7 @@ except NameError:
 # 判断是否为打包的程序
 # 释放自启动bat
 if is_exe:
-    startup_cmd = f'"{current_dir}\\connect.exe"'
+    startup_cmd = f'"{exe_path}"'
 else:
     startup_cmd = f'"{sys.executable}" "{current_dir}\\main.py"'
 

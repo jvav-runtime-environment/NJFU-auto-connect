@@ -64,6 +64,7 @@ def save_config(config):
     lg.info("配置管理器 -> 保存配置文件")
     config_path.write_text(json.dumps(config))
     lg.info("配置管理器 -> 保存完成")
+    load_config()  # 重新加载配置文件
 
 
 config = None

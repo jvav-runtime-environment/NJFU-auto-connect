@@ -12,7 +12,7 @@ if log_path.exists() and log_path.stat().st_size > MAX_LOG_SIZE:
 lg.basicConfig(
     filename=log_path,
     filemode="a",
-    level=lg.INFO,
+    level=lg.DEBUG,
     format="[%(asctime)s] [%(levelname)s] %(message)s",
     datefmt="%Y-%m-%d %H:%M:%S",
     encoding="utf-8",

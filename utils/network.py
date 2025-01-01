@@ -1,5 +1,6 @@
 """负责检查网络状态"""
 
+import sys
 import uuid
 import socket
 import subprocess
@@ -8,8 +9,13 @@ import logging as lg
 
 def get_wifi_info():
     result = subprocess.Popen(
-        ["netsh", "wlan", "show", "interfaces"], stdout=subprocess.PIPE, text=True, creationflags=subprocess.CREATE_NO_WINDOW, encoding="utf-8"
+        ["netsh", "wlan", "show", "interfaces"],
+        stdout=subprocess.PIPE,
+        text=True,
+        creationflags=subprocess.CREATE_NO_WINDOW,
+        encoding=sys.getdefaultencoding(),
     )
+
     info = result.stdout.read().replace(" ", "").split("\n")
     lg.debug(f"网络状态 -> 信息:\n{info}")
 

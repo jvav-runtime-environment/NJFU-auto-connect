@@ -13,6 +13,7 @@ def get_wifi_info():
         creationflags=subprocess.CREATE_NO_WINDOW,
     )
 
+    # 检测编码
     raw = result.stdout.read()
     try:
         raw.decode("utf-8")
@@ -20,6 +21,7 @@ def get_wifi_info():
     except UnicodeDecodeError:
         encoding = "gbk"
 
+    # 格式化信息
     info = raw.decode(encoding).replace(" ", "").split("\n")
     lg.debug(f"网络状态 -> 信息:\n{info}")
 

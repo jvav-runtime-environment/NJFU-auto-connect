@@ -50,7 +50,9 @@ class UI:
         # WiFi 名称
         ttk.Label(frame, text="WiFi 名称:").grid(row=2, column=0, sticky="w", padx=5, pady=5)
         self.wifiname_var = tk.StringVar(value=self.config["wifiname"])
-        ttk.Entry(frame, textvariable=self.wifiname_var, width=30).grid(row=2, column=1, padx=5, pady=5)
+        self.wifiname_combobox = ttk.Combobox(frame, textvariable=self.wifiname_var, values=["CMCC-EDU", "@f-Yang"])
+        self.wifiname_combobox.grid(row=2, column=1, padx=5, pady=5)
+        self.wifiname_combobox.bind("<<ComboboxSelected>>", self.on_wifi_name_change)
 
         # 平台
         ttk.Label(frame, text="平台:").grid(row=3, column=0, sticky="w", padx=5, pady=5)
@@ -89,7 +91,7 @@ class UI:
         ttk.Entry(self.advanced_frame, textvariable=self.check_url_var, width=30).grid(row=2, column=1, padx=5, pady=5)
 
     def create_startup(self):
-
+        """切换开机自启状态"""
         self.config["startup"] = not self.config["startup"]
 
         if self.config["startup"]:
@@ -98,6 +100,13 @@ class UI:
         else:
             createStartUp.remove()
             self.startup_button.config(text="创建启动项")
+
+    def on_wifi_name_change(self, event):
+        """WiFi 名称改变时的处理"""
+        if self.wifiname_var.get() == "CMCC-EDU":
+            self.platform_var.set("@cmcc")
+        elif self.wifiname_var.get() == "@f-Yang":
+            self.platform_var.set("@njxy")
 
     def create_action_buttons(self):
         """创建保存设置和恢复默认按钮"""

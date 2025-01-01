@@ -43,7 +43,6 @@ def login_proc():
     password = config["password"]
     platform = config["platform"]
     wifiname = config["wifiname"]
-
     interval = config["interval"]
 
     while running:
@@ -175,7 +174,7 @@ try:
 
     tray = Icon("linking", icon=icon, menu=running_menu, title="校园网自动连接")
 
-    create_work_thread()
+    run_work_thread()
     tray.run()
 
 except Exception:

@@ -1,6 +1,5 @@
 """负责检查网络状态"""
 
-import sys
 import uuid
 import socket
 import subprocess
@@ -11,12 +10,17 @@ def get_wifi_info():
     result = subprocess.Popen(
         ["netsh", "wlan", "show", "interfaces"],
         stdout=subprocess.PIPE,
-        text=True,
         creationflags=subprocess.CREATE_NO_WINDOW,
-        encoding=sys.getdefaultencoding(),
     )
 
-    info = result.stdout.read().replace(" ", "").split("\n")
+    raw = result.stdout.read()
+    try:
+        raw.decode("utf-8")
+        encoding = "utf-8"
+    except UnicodeDecodeError:
+        encoding = "gbk"
+
+    info = raw.decode(encoding).replace(" ", "").split("\n")
     lg.debug(f"网络状态 -> 信息:\n{info}")
 
     dic = {}

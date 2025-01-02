@@ -22,7 +22,11 @@ def get_wifi_info():
         encoding = "gbk"
 
     # 格式化信息
-    info = raw.decode(encoding).replace(" ", "").split("\n")
+    info = raw.decode(encoding).replace(" ", "").replace("\r", "").split("\n")
+    for i in range(info.count("")):
+        info.remove("")
+    info = info[1:]
+
     lg.debug(f"网络状态 -> 信息:\n{info}")
 
     dic = {}
@@ -34,20 +38,6 @@ def get_wifi_info():
             pass
 
     return dic
-
-
-def is_connected():
-    result = get_wifi_info()
-    if "SSID" in result:
-        return True
-    return False
-
-
-def is_the_wifi(name):
-    result = get_wifi_info()
-    if result["SSID"] == name:
-        return True
-    return False
 
 
 def get_mac():

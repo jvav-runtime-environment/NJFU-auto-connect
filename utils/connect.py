@@ -17,9 +17,10 @@ check_url = config["check_url"]  # 检查登录是否成功
 
 def get_json_data(text: str):
     # 获取text中大括号包括的内容
-    lg.debug(f"登录(文本处理) -> 原始数据: {text}")
     start = text.find("{")
     end = text.rfind("}")
+    lg.debug(f"登录(文本处理) -> 原始数据: {text[start : end + 1]}")
+
     return text[start : end + 1]
 
 

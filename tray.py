@@ -39,23 +39,22 @@ def login_proc():
 
     while not stop_event.is_set():
         try:
-            # 未连接
-            if not network.is_connected():
+            wifi_info = network.get_wifi_info()
+
+            if "SSID" in wifi_info:  # 连接到网络
+                if wifi_info["SSID"] == wifiname:  # 连接到指定网络
+                    if not connect.is_connected():  # 未连接到校园网
+                        success, msg = connect.login(username, password, platform)
+                        if success:
+                            notify("连接成功", "成功连接到校园网")
+                        else:
+                            notify("连接失败", "原因: " + msg)
+                else:
+                    stop_event.wait(60)
+                    continue
+            else:
                 stop_event.wait(5)
                 continue
-
-            # 检查wifi名称
-            if not network.is_the_wifi(wifiname):
-                stop_event.wait(60)
-                continue
-
-            # 登录
-            if not connect.is_connected():
-                success, msg = connect.login(username, password, platform)
-                if success:
-                    notify("连接成功", "成功连接到校园网")
-                else:
-                    notify("连接失败", "原因: " + msg)
 
             stop_event.wait(int(interval * 60))
 

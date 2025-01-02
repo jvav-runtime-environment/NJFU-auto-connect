@@ -9,13 +9,9 @@ from utils import configManager, network, connect, pathManager
 import UI
 
 
-config = configManager.get_config()
-
-
 def connect_instant():
     """立即进行一次连接"""
-    global config
-
+    config = configManager.get_config()
     username = config["username"]
     password = config["password"]
     platform = config["platform"]
@@ -29,8 +25,9 @@ def connect_instant():
 
 def login_proc():
     """登录方法"""
-    global config, stop_event
+    global stop_event
 
+    config = configManager.get_config()
     username = config["username"]
     password = config["password"]
     platform = config["platform"]

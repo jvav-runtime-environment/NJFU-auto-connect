@@ -7,13 +7,6 @@ import logging as lg
 from utils import network
 from utils import configManager
 
-config = configManager.get_config()
-
-ip = config["serverip"]
-platform = config["platform"]  # 平台
-login_api = config["login_api"]  # 登录api
-check_url = config["check_url"]  # 检查登录是否成功
-
 
 def get_json_data(text: str):
     # 获取text中大括号包括的内容
@@ -26,7 +19,10 @@ def get_json_data(text: str):
 
 def login(username, password, platform):
     # 登录的主要逻辑
-    global login_api
+    config = configManager.get_config()
+
+    platform = config["platform"]  # 平台
+    login_api = config["login_api"]  # 登录api
 
     data = {
         "callback": "dr1003",
@@ -48,7 +44,7 @@ def login(username, password, platform):
 
     r = requests.get(login_api, params=data)
     lg.info(f"登录 -> 响应代码: {r.status_code}")
-    lg.debug(f"登录 -> 原始响应: {r.text}")
+    lg.debug(f"登录 -> 原始响应:\n{r.text}")
     r.raise_for_status()
 
     r_json = json.loads(get_json_data(r.text))
@@ -60,11 +56,12 @@ def login(username, password, platform):
 
 def is_connected():
     # 检查是否已经登录
-    global check_url
+    config = configManager.get_config()
+    check_url = config["check_url"]  # 检查url
 
     r = requests.get(check_url)
     lg.info(f"登录(检测) -> 响应代码: {r.status_code}")
-    lg.debug(f"登录(检测) -> 原始响应: {r.text}")
+    lg.debug(f"登录(检测) -> 原始响应:\n{r.text}")
     r.raise_for_status()
 
     if "上网登录页" in r.text:

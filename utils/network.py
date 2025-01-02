@@ -22,7 +22,12 @@ def get_wifi_info():
         encoding = "gbk"
 
     # 格式化信息
-    info = raw.decode(encoding).replace(" ", "").replace("\r", "").split("\n")
+    info = raw.decode(encoding).replace(" ", "").split("\n")
+
+    # 去除额外字符
+    info = list(map(str.strip, info))
+
+    # 去除空字符串
     for i in range(info.count("")):
         info.remove("")
     info = info[1:]

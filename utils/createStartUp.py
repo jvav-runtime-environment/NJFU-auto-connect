@@ -24,6 +24,7 @@ lg.debug(f"启动项 -> 启动路径: {startup_cmd}")
 
 
 def create():
+    """创建开机启动"""
     try:
         key = winreg.HKEY_CURRENT_USER
         sub_key = "Software\\Microsoft\\Windows\\CurrentVersion\\Run"
@@ -37,6 +38,7 @@ def create():
 
 
 def remove():
+    """移除开机启动"""
     try:
         key = winreg.HKEY_CURRENT_USER
         sub_key = "Software\\Microsoft\\Windows\\CurrentVersion\\Run"

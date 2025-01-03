@@ -55,12 +55,12 @@ def login_proc():
 
             stop_event.wait(int(interval * 60))
 
-        except (requests.ConnectionError, requests.HTTPError):
+        except (requests.ConnectionError, requests.HTTPError) as e:
             lg.warning("登录线程 -> 连接错误")
             lg.warning("登录线程 -> 错误信息:\n", exc_info=True)
 
             # 询问是否重试
-            if not messagebox.askretrycancel("连接失败", f"无法连接到服务器:\n{traceback.format_exc()}"):
+            if not messagebox.askretrycancel("连接失败", f"无法连接到服务器:\n{e}"):
                 break
 
         except Exception:

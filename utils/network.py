@@ -7,6 +7,7 @@ import logging as lg
 
 
 def get_wifi_info():
+    """获取wifi信息"""
     result = subprocess.Popen(
         ["netsh", "wlan", "show", "interfaces"],
         stdout=subprocess.PIPE,
@@ -39,19 +40,21 @@ def get_wifi_info():
         try:
             key, value = i.split(":")
             dic[key] = value
-        except:
-            pass
+        except ValueError:
+            lg.warning(f"网络状态 -> 信息格式错误:\n{i}")
 
     return dic
 
 
 def get_mac():
+    """获取MAC地址"""
     mac = hex(uuid.getnode())[2:]
     lg.debug(f"网络状态 -> MAC地址:\n{mac}")
     return mac
 
 
 def get_ip():
+    """获取IP地址"""
     ip = socket.gethostbyname(socket.gethostname())
     lg.debug(f"网络状态 -> IP地址:\n{ip}")
     return ip

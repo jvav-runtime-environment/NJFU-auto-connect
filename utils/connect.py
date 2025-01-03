@@ -9,7 +9,7 @@ from utils import configManager
 
 
 def get_json_data(text: str):
-    # 获取text中大括号包括的内容
+    """获取text中大括号包括的内容"""
     start = text.find("{")
     end = text.rfind("}")
     lg.debug(f"登录(文本处理) -> 原始数据: {text[start : end + 1]}")
@@ -18,7 +18,7 @@ def get_json_data(text: str):
 
 
 def login(username, password, platform):
-    # 登录的主要逻辑
+    """登录的主要逻辑"""
     config = configManager.get_config()
 
     platform = config["platform"]  # 平台
@@ -29,9 +29,9 @@ def login(username, password, platform):
         "login_method": "1",
         "user_account": ",0," + username + platform,
         "user_password": password,
-        "wlan_user_ip": network.get_ip(),
+        "wlan_user_ip": network.get_ip(),  # 该项非必要，防出错
         "wlan_user_ipv6": "",
-        "wlan_user_mac": network.get_mac(),
+        "wlan_user_mac": network.get_mac(),  # 该项非必要，防出错
         "wlan_ac_ip": "",
         "wlan_ac_name": "",
         "jsVersion": "4.2.2",
@@ -40,7 +40,6 @@ def login(username, password, platform):
         "v": "1111",
         "lang": "zh",
     }
-    lg.info(f"登录 -> js版本: {data['jsVersion']}")
 
     r = requests.get(login_api, params=data)
     lg.info(f"登录 -> 响应代码: {r.status_code}")
@@ -55,7 +54,7 @@ def login(username, password, platform):
 
 
 def is_connected():
-    # 检查是否已经登录
+    """检查是否已经登录"""
     config = configManager.get_config()
     check_url = config["check_url"]  # 检查url
 

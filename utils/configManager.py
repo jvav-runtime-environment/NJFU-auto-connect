@@ -7,25 +7,24 @@ from utils.pathManager import config_path
 
 
 def get_default():
-    # 返回默认配置
+    """返回默认配置"""
     return copy.deepcopy(basic_config)
 
 
 def get_config():
-    # 返回已解析的配置
+    """返回已解析的配置"""
     return config
 
 
 def get_raw_config():
-    # 返回未解析的原始设置
+    """返回未解析的原始设置"""
     return raw_config
 
 
 def load_config():
-    # 读取配置文件
+    """读取配置文件"""
     lg.info("配置管理器 -> 读取配置文件")
-    global config
-    global raw_config
+    global config, raw_config
 
     try:
         raw_config = json.loads(config_path.read_text())
@@ -56,21 +55,18 @@ def load_config():
         return config
 
     lg.info("配置管理器 -> 读取完成")
-    return config
 
 
 def save_config(config):
     # 保存配置文件
     lg.info("配置管理器 -> 保存配置文件")
     config_path.write_text(json.dumps(config))
-    lg.info("配置管理器 -> 保存完成")
     load_config()  # 重新加载配置文件
 
 
 config = None
 raw_config = None
 
-lg.info("配置管理器 -> 初始化")
 basic_config = {  # 默认配置
     "username": "",
     "password": "",
@@ -88,5 +84,4 @@ if not config_path.exists():
     config_path.touch()
     config_path.write_text(json.dumps(basic_config))
 
-config = load_config()
-lg.info("配置管理器 -> 初始化完成")
+load_config()

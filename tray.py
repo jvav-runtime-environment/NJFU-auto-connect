@@ -73,8 +73,62 @@ def login_proc():
 from pystray import Icon, Menu, MenuItem
 from PIL import Image
 
+
 stop_event = threading.Event()
 main_thread = threading.Thread(target=login_proc)
+
+
+class Traybutton:
+    """自定义菜单按钮类"""
+
+    def __init__(self, text, callback, enabled=True):
+        self.text = text
+        self.callback = callback
+        self.enabled = enabled
+
+    def get_item(self):
+        """获取菜单项目"""
+        if self.text == Menu.SEPARATOR:
+            return Menu.SEPARATOR
+        else:
+            return MenuItem(self.text, self.callback, enabled=self.enabled)
+
+    def enable(self, enabled=True):
+        """启用按钮"""
+        self.enabled = enabled
+
+
+class Traymenu:
+    """自定义菜单类"""
+
+    def __init__(self):
+        self.menu = [  # 菜单按钮列表
+            Traybutton("运行", run_work_thread),
+            Traybutton("停止", stop_work_thread),
+            Traybutton("立即连接", connect_instant),
+            Traybutton(Menu.SEPARATOR, None),
+            Traybutton("设置", start_ui_thread),
+            Traybutton("检查更新", lambda: None),
+            Traybutton(Menu.SEPARATOR, None),
+            Traybutton("退出", stop_tray),
+        ]
+
+    def get_menu(self):
+        """获取菜单"""
+        menu = []
+        for button in self.menu:
+            menu.append(button.get_item())
+
+        return Menu(*menu)
+
+    def update(self):
+        """更新菜单"""
+        tray.menu = self.get_menu()
+        tray.update_menu()
+
+    def enable_button(self, index, enable=True):
+        """设置按钮状态"""
+        self.menu[index].enable(enable)
 
 
 def create_work_thread():
@@ -94,8 +148,9 @@ def run_work_thread():
     if not main_thread.is_alive():
         create_work_thread()
 
-        tray.menu = running_menu
-        tray.update_menu()
+        menu.enable_button(0, False)
+        menu.enable_button(1, True)
+        menu.update()
         lg.info("主任务 -> 启动")
 
 
@@ -104,8 +159,9 @@ def stop_work_thread():
     global stop_event
     stop_event.set()
 
-    tray.menu = stopped_menu
-    tray.update_menu()
+    menu.enable_button(0, True)
+    menu.enable_button(1, False)
+    menu.update()
     lg.info("主任务 -> 结束")
 
 
@@ -155,25 +211,11 @@ def run():
     global tray
 
     icon = Image.open(pathManager.icon_path)
-    tray = Icon(name="NJFUAutoConnect", title="校园网自动登录", icon=icon, menu=running_menu)
+    tray = Icon(name="NJFUAutoConnect", title="校园网自动登录", icon=icon, menu=menu.get_menu())
     run_work_thread()
     tray.run()
 
 
 tray = None
-running_menu = Menu(
-    MenuItem("运行", run_work_thread, enabled=False),
-    MenuItem("停止", stop_work_thread),
-    Menu.SEPARATOR,
-    MenuItem("立即连接", connect_instant),
-    MenuItem("设置", start_ui_thread),
-    MenuItem("退出", stop_tray),
-)
-stopped_menu = Menu(
-    MenuItem("运行", run_work_thread),
-    MenuItem("停止", stop_work_thread, enabled=False),
-    Menu.SEPARATOR,
-    MenuItem("立即连接", connect_instant),
-    MenuItem("设置", start_ui_thread),
-    MenuItem("退出", stop_tray),
-)
+menu = Traymenu()
+menu.enable_button(0, False)

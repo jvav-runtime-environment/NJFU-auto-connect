@@ -4,6 +4,7 @@ from tkinter import messagebox
 
 from utils import configManager
 from utils import createStartUp
+from utils import update
 from utils.pathManager import icon_path
 
 # 匹配分辨率
@@ -18,7 +19,7 @@ class UI:
         self.window = tk.Tk()
         self.window.iconphoto(True, tk.PhotoImage(file=icon_path))
         self.window.tk.call("tk", "scaling", ScaleFactor / 75)
-        self.window.title("配置设置")
+        self.window.title("配置设置-校园网自动登录 " + update.get_version())
 
         # 默认配置项
         self.config = config

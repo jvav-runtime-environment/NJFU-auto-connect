@@ -1,17 +1,31 @@
 import time
 import requests
 import logging as lg
-import pathManager
+
+if __name__ == "__main__":
+    import pathManager
+else:
+    from utils import pathManager
 
 
 CURRENT_VERSION = "v1.1.2"
 CHECK_UPDATE_URL = "https://api.github.com/repos/jvav-runtime-environment/NJFU-auto-connect/releases/latest"
-PROXY = ["", "https://ghproxy.cc/"]
+PROXY = ["", "https://ghproxy.cc/"]  # 加速代理
 
 update_path = pathManager.current_dir.parent / "update"
 update_file = update_path / "connect.exe"
 
 percent = 0
+
+
+def get_download_percent():
+    """获取下载进度"""
+    return percent
+
+
+def get_version():
+    """获取当前版本"""
+    return CURRENT_VERSION
 
 
 def check_update():

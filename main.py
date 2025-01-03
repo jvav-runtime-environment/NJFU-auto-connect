@@ -16,6 +16,6 @@ try:
     lg.info("主程序 -> 启动")
     tray.run()
 except Exception:
-    lg.error("主程序 -> 未知错误")
-    lg.error("主程序 -> 错误信息:\n", exc_info=True)
+    lg.critical("主程序 -> 未知错误")
+    lg.critical("主程序 -> 错误信息:\n", exc_info=True)
     messagebox.showerror("未知的内部错误:\n", traceback.format_exc())

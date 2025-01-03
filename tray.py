@@ -9,6 +9,7 @@ from utils import configManager, network, connect, pathManager
 import UI
 
 
+# --------主要的登录方法--------
 def connect_instant():
     """立即进行一次连接"""
     config = configManager.get_config()
@@ -78,6 +79,7 @@ stop_event = threading.Event()
 main_thread = threading.Thread(target=login_proc)
 
 
+# --------托盘菜单管理类--------
 class Traybutton:
     """自定义菜单按钮类"""
 
@@ -131,6 +133,7 @@ class Traymenu:
         self.menu[index].enable(enable)
 
 
+# --------托盘菜单回调函数--------
 def create_work_thread():
     """创建主任务线程"""
     global main_thread

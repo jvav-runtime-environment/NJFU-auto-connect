@@ -33,12 +33,15 @@ def get_wifi_info():
         info.remove("")
     info = info[1:]
 
+    # 替换中文冒号
+    info = [i.replace("：", ":") for i in info]
+
     lg.debug(f"网络状态 -> 信息:\n{info}")
 
     dic = {}
     for i in info:
         try:
-            key, value = i.split(":")
+            key, value = i.split(":", 1)
             dic[key] = value
         except ValueError:
             lg.warning(f"网络状态 -> 信息格式错误:\n{i}")

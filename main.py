@@ -5,6 +5,9 @@ if not lock.can_create():
     sys.exit(0)
 
 from utils import logManager
+from utils import update
+
+update.check_and_apply_update()
 
 import tray
 import traceback

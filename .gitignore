@@ -1,6 +1,7 @@
 *.json
 *.txt
 *.exe
+*.bat
 
 \__pycache__
 \main.*
@@ -8,3 +9,5 @@
 \update
 
 !main.py
+!pack.bat
+!pack-onefile.bat

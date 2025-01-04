@@ -1,23 +1,33 @@
 """管理自动更新"""
 
+import sys
 import time
 import requests
-import threading
+import subprocess
 import logging as lg
-from tkinter import messagebox
 
-if __name__ == "__main__":
-    import pathManager
-else:
-    from utils import pathManager
+from utils import pathManager
+from utils.createStartUp import is_exe
 
 
 CURRENT_VERSION = "v1.1.2"
 CHECK_UPDATE_URL = "https://api.github.com/repos/jvav-runtime-environment/NJFU-auto-connect/releases/latest"
 PROXY = ["", "https://ghproxy.cc/"]  # 加速代理
 
-update_path = pathManager.current_dir.parent / "update"
+update_path = pathManager.current_dir / "update"
 update_file = update_path / "connect.exe"
+
+update_bat_file = pathManager.current_dir / "update.bat"
+
+update_cmd = f"""@echo off
+echo start updating in 5 seconds...
+timeout /t 5 /nobreak
+move /y "{update_file}" "{pathManager.current_dir}"
+echo completed! start program in 2s...
+timeout /t 2 /nobreak
+start "{pathManager.exe_path}"
+exit
+"""
 
 percent = 0
 
@@ -119,28 +129,24 @@ def download(file_info):
         return False
 
 
-def check_and_ask_for_update():
-    update, data = check_update()
-    if update:
-        if messagebox.askyesno("检查更新", f"发现新版本, 是否更新?({CURRENT_VERSION} -> {data['tag_name']})"):
+def check_and_apply_update():
+    """检查更新并更新"""
+    if not is_exe():  # 更新只在exe版本启动
+        return
 
-            success = download(data)
-            if success:
-                messagebox.showinfo("更新", "更新完成, 重启程序后完成更新")
-            else:
-                messagebox.showerror("更新", "更新失败, 检查网络后重试")
-    else:
-        messagebox.showinfo("检查更新", "当前已是最新版本")
+    have_update, data = check_update()
 
+    # 如果存在update_bat表示已经执行过更新
+    if not have_update:
+        lg.info("更新 -> 已更新")
+        lg.info("更新 -> 移除更新文件")
+        update_bat_file.unlink(missing_ok=True)
+        update_file.unlink(missing_ok=True)
 
-if __name__ == "__main__":
-    lg.basicConfig(
-        filename=pathManager.log_path,
-        filemode="a",
-        level=lg.INFO,
-        format="[%(asctime)s] [%(levelname)s] %(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S",
-        encoding="utf-8",
-    )
-
-    check_and_ask_for_update()
+    elif update_file.exists() and update_file.stat().st_size == data["assets"][0]["size"]:
+        lg.info("更新 -> 检测到更新文件")
+        update_bat_file.touch()
+        update_bat_file.write_text(update_cmd)
+        subprocess.Popen(f'"{update_bat_file}"', shell=True)
+        lg.info("更新 -> 即将执行更新, 结束程序")
+        sys.exit(0)

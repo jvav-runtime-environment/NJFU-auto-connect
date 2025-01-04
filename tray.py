@@ -97,6 +97,14 @@ class Traybutton:
         """启用按钮"""
         self.enabled = enabled
 
+    def set_text(self, text):
+        """设置按钮文本"""
+        self.text = text
+
+    def set_callback(self, callback):
+        """设置按钮回调函数"""
+        self.callback = callback
+
 
 class Traymenu:
     """自定义菜单类"""

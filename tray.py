@@ -222,14 +222,14 @@ def start_update_thread():
         try:
             ui = UI.DownloadUI()
             ui.show()
-            lg.info("更新UI -> 结束")
+            lg.info("更新 -> UI结束")
         except Exception:
-            lg.error("更新UI -> 未知错误")
-            lg.error("更新UI -> 错误信息:\n", exc_info=True)
+            lg.error("更新 -> 未知错误(UI)")
+            lg.error("更新 -> 错误信息(UI):\n", exc_info=True)
 
     update_thread = threading.Thread(target=update_proc)
     update_thread.daemon = True
-    lg.info("更新UI -> 启动")
+    lg.info("更新 -> UI启动")
     update_thread.start()
 
 

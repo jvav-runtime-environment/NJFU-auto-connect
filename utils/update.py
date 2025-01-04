@@ -3,6 +3,7 @@
 import sys
 import time
 import requests
+import threading
 import subprocess
 import logging as lg
 
@@ -20,12 +21,11 @@ update_file = update_path / "connect.exe"
 update_bat_file = pathManager.current_dir / "update.bat"
 
 update_cmd = f"""@echo off
-echo start updating in 5 seconds...
-timeout /t 5 /nobreak
+cd /d {pathManager.current_dir}
+echo start updating in 3s...
+timeout /t 3 /nobreak >nul
 move /y "{update_file}" "{pathManager.current_dir}"
-echo completed! start program in 2s...
-timeout /t 2 /nobreak
-start "{pathManager.exe_path}"
+start "" "{pathManager.exe_path}"
 exit
 """
 
@@ -147,6 +147,8 @@ def check_and_apply_update():
         lg.info("更新 -> 检测到更新文件")
         update_bat_file.touch()
         update_bat_file.write_text(update_cmd)
-        subprocess.Popen(f'"{update_bat_file}"', shell=True)
+
+        subprocess.Popen(f'start "updating..." "{update_bat_file}"', shell=True)
+
         lg.info("更新 -> 即将执行更新, 结束程序")
         sys.exit(0)

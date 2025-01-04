@@ -182,7 +182,7 @@ class MainUI:
 class DownloadUI:
     """下载进度条"""
 
-    def __init__(self):
+    def create(self):
         self.window = tk.Tk()
         self.window.iconphoto(True, tk.PhotoImage(file=icon_path))
         self.window.title("下载更新-校园网自动登录")
@@ -226,15 +226,15 @@ class DownloadUI:
                     messagebox.showerror("更新", "更新失败, 检查网络后重试")
 
                 self.window.after(0, self.window.destroy)  # 防止不同线程调用
-                lg.info("更新线程 -> 结束")
+                lg.info("更新(下载) -> 结束")
 
             except Exception:
-                lg.error("更新线程 -> 未知错误")
-                lg.error("更新线程 -> 错误信息:\n", exc_info=True)
+                lg.error("更新(下载) -> 未知错误")
+                lg.error("更新(下载) -> 错误信息:\n", exc_info=True)
 
         update_thread = threading.Thread(target=update_proc)
         update_thread.daemon = True
-        lg.info("更新线程 -> 启动")
+        lg.info("更新(下载) -> 启动")
         update_thread.start()
 
     def check_and_ask_for_update(self):
@@ -243,14 +243,16 @@ class DownloadUI:
         if have_update:
             if messagebox.askyesno("检查更新", f"发现新版本, 是否更新?({update.CURRENT_VERSION} -> {data['tag_name']})"):
                 self.start_download_thread(data)
+                self.create()
+                return True
             else:
                 lg.info("更新 -> 取消更新")
-                self.window.destroy()
         else:
             messagebox.showinfo("检查更新", "当前已是最新版本")
+        return False
 
     def show(self):
         """显示窗口"""
-        self.check_and_ask_for_update()
-        self.update_progress()
-        self.window.mainloop()
+        if self.check_and_ask_for_update():  # 仅在进行更新的时候运行窗口
+            self.update_progress()
+            self.window.mainloop()

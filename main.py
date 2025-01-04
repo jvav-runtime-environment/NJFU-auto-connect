@@ -7,7 +7,6 @@ if not lock.can_create():
 from utils import logManager
 from utils import update
 
-update.check_and_apply_update()
 
 import tray
 import traceback
@@ -16,6 +15,8 @@ from tkinter import messagebox
 
 
 try:
+    update.check_and_apply_update()
+
     lg.info("主程序 -> 启动")
     tray.run()
 except Exception:

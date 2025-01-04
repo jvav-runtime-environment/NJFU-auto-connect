@@ -1,6 +1,10 @@
+"""管理自动更新"""
+
 import time
 import requests
+import threading
 import logging as lg
+from tkinter import messagebox
 
 if __name__ == "__main__":
     import pathManager
@@ -43,15 +47,15 @@ def check_update():
         lg.info(f"更新 -> 最新版本: {latest_version}")
 
         if latest_version > CURRENT_VERSION:
-            return (latest_version, data)
-        return None
+            return (True, data)
+        return (False, None)
 
     except requests.RequestException:
         lg.warning("更新 -> 检查更新失败")
-        return None
+        return (False, None)
 
 
-def download_latest(file_info):
+def download(file_info):
     """下载最新版本"""
     global update_path, percent
 
@@ -100,12 +104,12 @@ def download_latest(file_info):
         except requests.RequestException:
             lg.warning("更新 -> 下载失败")
             lg.warning("更新 -> 错误信息\n", exc_info=True)
-            update_file.unlink()
+            update_file.unlink(missing_ok=True)
 
         except Exception:
             lg.warning("更新 -> 未知错误")
             lg.warning("更新 -> 错误信息\n", exc_info=True)
-            update_file.unlink()
+            update_file.unlink(missing_ok=True)
 
     if success:
         lg.info("更新 -> 结束, 下载完成")
@@ -113,6 +117,20 @@ def download_latest(file_info):
     else:
         lg.info("更新 -> 结束, 全部失败")
         return False
+
+
+def check_and_ask_for_update():
+    update, data = check_update()
+    if update:
+        if messagebox.askyesno("检查更新", f"发现新版本, 是否更新?({CURRENT_VERSION} -> {data['tag_name']})"):
+
+            success = download(data)
+            if success:
+                messagebox.showinfo("更新", "更新完成, 重启程序后完成更新")
+            else:
+                messagebox.showerror("更新", "更新失败, 检查网络后重试")
+    else:
+        messagebox.showinfo("检查更新", "当前已是最新版本")
 
 
 if __name__ == "__main__":
@@ -125,8 +143,4 @@ if __name__ == "__main__":
         encoding="utf-8",
     )
 
-    update, data = check_update()
-    if update:
-        download_latest(data)
-    else:
-        lg.info("更新 -> 当前已是最新版本")
+    check_and_ask_for_update()

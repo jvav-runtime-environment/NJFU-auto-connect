@@ -3,9 +3,11 @@ import requests
 import threading
 import traceback
 import logging as lg
+from PIL import Image
 from tkinter import messagebox
+from pystray import Icon, Menu, MenuItem
 
-from utils import configManager, network, connect, pathManager
+from utils import configManager, network, connect, pathManager, update
 import UI
 
 
@@ -71,10 +73,6 @@ def login_proc():
             break
 
 
-from pystray import Icon, Menu, MenuItem
-from PIL import Image
-
-
 stop_event = threading.Event()
 main_thread = threading.Thread(target=login_proc)
 
@@ -110,7 +108,7 @@ class Traymenu:
             Traybutton("立即连接", connect_instant),
             Traybutton(Menu.SEPARATOR, None),
             Traybutton("设置", start_ui_thread),
-            Traybutton("检查更新", lambda: None),
+            Traybutton("检查更新", start_update_thread),
             Traybutton(Menu.SEPARATOR, None),
             Traybutton("退出", stop_tray),
         ]
@@ -140,6 +138,7 @@ def create_work_thread():
 
     main_thread = threading.Thread(target=login_proc)
     main_thread.daemon = True
+    lg.info("主任务 -> 启动")
     main_thread.start()
 
 
@@ -154,7 +153,6 @@ def run_work_thread():
         menu.enable_button(0, False)
         menu.enable_button(1, True)
         menu.update()
-        lg.info("主任务 -> 启动")
 
 
 def stop_work_thread():
@@ -196,8 +194,8 @@ def start_ui_thread():
 
     def ui_proc():
         try:
-            ui = UI.UI(configManager.get_raw_config())
-            ui.window.mainloop()
+            ui = UI.MainUI(configManager.get_raw_config())
+            ui.show()
             lg.info("UI线程 -> 结束")
         except Exception:
             lg.error("UI线程 -> 未知错误")
@@ -205,8 +203,26 @@ def start_ui_thread():
 
     ui_thread = threading.Thread(target=ui_proc)
     ui_thread.daemon = True
-    ui_thread.start()
     lg.info("UI线程 -> 启动")
+    ui_thread.start()
+
+
+def start_update_thread():
+    """启动更新线程"""
+
+    def update_proc():
+        try:
+            ui = UI.DownloadUI()
+            ui.show()
+            lg.info("更新UI -> 结束")
+        except Exception:
+            lg.error("更新UI -> 未知错误")
+            lg.error("更新UI -> 错误信息:\n", exc_info=True)
+
+    update_thread = threading.Thread(target=update_proc)
+    update_thread.daemon = True
+    lg.info("更新UI -> 启动")
+    update_thread.start()
 
 
 def run():

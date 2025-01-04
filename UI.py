@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
+import logging as lg
 
 from utils import configManager
 from utils import createStartUp
@@ -9,12 +10,15 @@ from utils.pathManager import icon_path
 
 # 匹配分辨率
 import ctypes
+import threading
 
 ctypes.windll.shcore.SetProcessDpiAwareness(1)
 ScaleFactor = ctypes.windll.shcore.GetScaleFactorForDevice(0)
 
 
-class UI:
+class MainUI:
+    """设置UI"""
+
     def __init__(self, config):
         self.window = tk.Tk()
         self.window.iconphoto(True, tk.PhotoImage(file=icon_path))
@@ -169,3 +173,84 @@ class UI:
 
             configManager.save_config(self.config)
             messagebox.showinfo("恢复默认", "设置已恢复默认")
+
+    def show(self):
+        """显示窗口"""
+        self.window.mainloop()
+
+
+class DownloadUI:
+    """下载进度条"""
+
+    def __init__(self):
+        self.window = tk.Tk()
+        self.window.iconphoto(True, tk.PhotoImage(file=icon_path))
+        self.window.title("下载更新-校园网自动登录")
+
+        # 创建下载进度条
+        self.create_progressbar()
+
+    def create_progressbar(self):
+        """创建下载进度条"""
+        frame = ttk.Frame(self.window)
+        frame.pack(padx=20, pady=10, fill="x")
+
+        # 进度条
+        self.progressbar = ttk.Progressbar(frame, length=300, mode="determinate")
+        self.progressbar.pack(padx=5, pady=5)
+
+        # 进度文本
+        self.progress_label = ttk.Label(frame, text="0%")
+        self.progress_label.pack(padx=5, pady=5)
+
+    def update_progress(self):
+        """更新下载进度"""
+        percent = update.get_download_percent()
+
+        self.progressbar["value"] = percent
+        self.progressbar.update()
+        self.progress_label.config(text=f"{percent:.2f}%")
+
+        # 定时调用
+        self.window.after(100, self.update_progress)
+
+    def start_download_thread(self, file_info):
+        """启动下载线程"""
+
+        def update_proc():
+            try:
+                success = update.download(file_info)
+                if success:
+                    messagebox.showinfo("更新", "更新完成, 重启程序后完成更新")
+                else:
+                    messagebox.showerror("更新", "更新失败, 检查网络后重试")
+
+                self.window.after(0, self.window.destroy)  # 防止不同线程调用
+                lg.info("更新线程 -> 结束")
+
+            except Exception:
+                lg.error("更新线程 -> 未知错误")
+                lg.error("更新线程 -> 错误信息:\n", exc_info=True)
+
+        update_thread = threading.Thread(target=update_proc)
+        update_thread.daemon = True
+        lg.info("更新线程 -> 启动")
+        update_thread.start()
+
+    def check_and_ask_for_update(self):
+        """检查更新并询问是否更新"""
+        have_update, data = update.check_update()
+        if have_update:
+            if messagebox.askyesno("检查更新", f"发现新版本, 是否更新?({update.CURRENT_VERSION} -> {data['tag_name']})"):
+                self.start_download_thread(data)
+            else:
+                lg.info("更新 -> 取消更新")
+                self.window.destroy()
+        else:
+            messagebox.showinfo("检查更新", "当前已是最新版本")
+
+    def show(self):
+        """显示窗口"""
+        self.check_and_ask_for_update()
+        self.update_progress()
+        self.window.mainloop()

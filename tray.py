@@ -222,7 +222,18 @@ def start_update_thread():
         try:
             ui = UI.DownloadUI()
             ui.show()
+
+            # 等待下载完成
+            while not ui.finished:
+                pass
+
+            if ui.success:
+                messagebox.showinfo("更新", "下载完成, 程序再次启动时将完成更新")
+            else:
+                messagebox.showerror("更新", "下载失败, 请检查网络后重试")
+
             lg.info("更新 -> UI结束")
+
         except Exception:
             lg.error("更新 -> 未知错误(UI)")
             lg.error("更新 -> 错误信息(UI):\n", exc_info=True)

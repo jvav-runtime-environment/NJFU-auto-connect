@@ -29,13 +29,6 @@ start "" "{pathManager.exe_path}"
 exit
 """
 
-percent = 0
-
-
-def get_download_percent():
-    """获取下载进度"""
-    return percent
-
 
 def get_version():
     """获取当前版本"""
@@ -65,9 +58,9 @@ def check_update():
         return (False, None)
 
 
-def download(file_info):
+def download(file_info, stats_callback=lambda finished, success, progress: None):
     """下载最新版本"""
-    global update_path, percent
+    global update_path
 
     size = file_info["assets"][0]["size"]
     url = file_info["assets"][0]["browser_download_url"]
@@ -86,6 +79,7 @@ def download(file_info):
             lg.info(f"更新 -> 未使用代理")
 
         download_url = proxy + url
+        percent = 0
 
         try:
             r = requests.get(download_url, stream=True)
@@ -102,10 +96,10 @@ def download(file_info):
                         r_size += len(chunk)
                         percent = r_size / size * 100
 
-                        # 每10秒输出一次下载进度
+                        # 每秒更新一次下载进度
                         t2 = time.time()
-                        if t2 - t1 > 10:
-                            lg.info(f"更新 -> 下载进度: {percent:.2f}%")
+                        if t2 - t1 > 1:
+                            stats_callback(False, False, percent)  # 调用回调函数
                             t1 = t2
 
             success = True
@@ -121,12 +115,22 @@ def download(file_info):
             lg.warning("更新 -> 错误信息\n", exc_info=True)
             update_file.unlink(missing_ok=True)
 
+    # 结束时调用回调函数通知完成
+    stats_callback(True, success, 100)
+
     if success:
         lg.info("更新 -> 结束, 下载完成")
         return True
     else:
         lg.info("更新 -> 结束, 全部失败")
         return False
+
+
+def start_download_thread(file_info, status_callback=lambda finished, success, progress: None):
+    download_thread = threading.Thread(target=download, args=(file_info, status_callback))
+    download_thread.daemon = True
+    lg.info("更新 -> 下载线程启动")
+    download_thread.start()
 
 
 def check_and_apply_update():
@@ -136,7 +140,7 @@ def check_and_apply_update():
 
     have_update, data = check_update()
 
-    # 如果存在update_bat表示已经执行过更新
+    # 是否有更新
     if not have_update:
         lg.info("更新 -> 已更新")
         lg.info("更新 -> 移除更新文件")

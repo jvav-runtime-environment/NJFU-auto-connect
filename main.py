@@ -15,9 +15,9 @@ from tkinter import messagebox
 
 
 try:
+    lg.info("主程序 -> 启动")
     update.check_and_apply_update()
 
-    lg.info("主程序 -> 启动")
     tray.run()
 except Exception:
     lg.critical("主程序 -> 未知错误")

@@ -131,7 +131,7 @@ def download(file_info):
 
 def check_and_apply_update():
     """检查更新并更新"""
-    if not is_exe():  # 更新只在exe版本启动
+    if not is_exe:  # 更新只在exe版本启动
         return
 
     have_update, data = check_update()

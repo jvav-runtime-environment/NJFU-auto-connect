@@ -9,6 +9,8 @@ import logging as lg
 
 from utils import pathManager
 from utils.createStartUp import is_exe
+from tkinter import messagebox
+from tkinter import messagebox
 
 
 CURRENT_VERSION = "v1.1.2"
@@ -156,3 +158,15 @@ def check_and_apply_update():
 
         lg.info("更新 -> 即将执行更新, 结束程序")
         sys.exit(0)
+
+
+def check_and_ask_for_update():
+    """检查更新并询问是否更新"""
+    have_update, data = check_update()
+    if have_update:
+        if messagebox.askyesno("检查更新", f"发现新版本, 是否更新?({CURRENT_VERSION} -> {data['tag_name']})"):
+            return (True, data)
+    else:
+        messagebox.showinfo("检查更新", "当前已是最新版本")
+
+    return (False, None)

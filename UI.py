@@ -179,28 +179,27 @@ class MainUI:
         self.window.mainloop()
 
 
-class DownloadUI:
+class DownloadBar:
     """下载进度条"""
 
     def __init__(self):
-        self.success = False  # 标记是否下载成功
-        self.finished = False  # 标记是否下载完成
         self.foreground = True  # 标记窗口是否被关闭
 
     def create(self):
         self.window = tk.Tk()
-        self.window.iconphoto(True, tk.PhotoImage(file=icon_path))
         self.window.title("下载更新-校园网自动登录")
         self.window.protocol("WM_DELETE_WINDOW", self.on_close)
+        self.window.iconphoto(True, tk.PhotoImage(file=icon_path))
+
+        self.foreground = True
 
         # 创建下载进度条
         self.create_progressbar()
 
     def on_close(self):
         """接管关闭事件"""
-        if not self.finished:
-            lg.info("更新 -> UI关闭, 继续下载")
-            self.foreground = False
+        self.foreground = False
+        lg.info("更新 -> 进度条关闭, 继续下载")
         self.window.destroy()
 
     def create_progressbar(self):
@@ -221,34 +220,15 @@ class DownloadUI:
         self.progressbar["value"] = progress
         self.progress_label.config(text=f"{progress:.2f}%")
 
-    def update(self, finished, success, progress):
+    def update(self, progress, finished):
         """更新下载进度"""
         if self.foreground:
             self.window.after(0, self.update_progress, progress)  # 防止跨线程调用
 
-        # 下载结束
-        if finished:
-            if self.foreground:
-                self.window.after(0, self.window.destroy)  # 防止跨线程调用
-
-            self.success = success
-            self.finished = True
-
-    def check_and_ask_for_update(self):
-        """检查更新并询问是否更新"""
-        have_update, data = update.check_update()
-        if have_update:
-            if messagebox.askyesno("检查更新", f"发现新版本, 是否更新?({update.CURRENT_VERSION} -> {data['tag_name']})"):
-                self.create()
-                update.start_download_thread(data, self.update)
-                return True
-        else:
-            messagebox.showinfo("检查更新", "当前已是最新版本")
-
-        self.finished = True
-        return False
+            if finished:
+                self.window.after(0, self.window.destroy)
 
     def show(self):
         """显示窗口"""
-        if self.check_and_ask_for_update():  # 仅在进行更新的时候运行窗口
-            self.window.mainloop()
+        self.create()
+        self.window.mainloop()

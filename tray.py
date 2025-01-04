@@ -219,28 +219,46 @@ def start_update_thread():
     """启动更新线程"""
 
     def update_proc():
+        """线程函数"""
+        finished = False
+        success = False
+
+        def download_callback(d_finished, d_success, progress):
+            """下载线程回调函数"""
+            nonlocal finished, success, bar
+            finished = d_finished
+            success = d_success
+
+            bar.update(progress, finished)
+
         try:
-            ui = UI.DownloadUI()
-            ui.show()
+            bar = UI.DownloadBar()
+
+            agree, data = update.check_and_ask_for_update()
+            if not agree:
+                return
+
+            update.start_download_thread(data, download_callback)
+            bar.show()
 
             # 等待下载完成
-            while not ui.finished:
+            while not finished:
                 pass
 
-            if ui.success:
+            if success:
                 messagebox.showinfo("更新", "下载完成, 程序再次启动时将完成更新")
             else:
                 messagebox.showerror("更新", "下载失败, 请检查网络后重试")
 
-            lg.info("更新 -> UI结束")
+            lg.info("更新 -> 线程结束")
 
         except Exception:
-            lg.error("更新 -> 未知错误(UI)")
-            lg.error("更新 -> 错误信息(UI):\n", exc_info=True)
+            lg.error("更新 -> 未知错误(线程)")
+            lg.error("更新 -> 错误信息(线程):\n", exc_info=True)
 
     update_thread = threading.Thread(target=update_proc)
     update_thread.daemon = True
-    lg.info("更新 -> UI启动")
+    lg.info("更新 -> 线程启动")
     update_thread.start()
 
 

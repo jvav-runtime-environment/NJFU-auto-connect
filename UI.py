@@ -183,6 +183,7 @@ class DownloadBar:
     """下载进度条"""
 
     def __init__(self):
+        self.started = False  # 标记是否开始下载, 实现不确定进度条转为确定进度条
         self.foreground = True  # 标记窗口是否被关闭
 
     def create(self):
@@ -208,7 +209,8 @@ class DownloadBar:
         frame.pack(padx=20, pady=10, fill="x")
 
         # 进度条
-        self.progressbar = ttk.Progressbar(frame, length=300, mode="determinate")
+        self.progressbar = ttk.Progressbar(frame, length=300, mode="indeterminate")
+        self.progressbar.start()
         self.progressbar.pack(padx=5, pady=5)
 
         # 进度文本
@@ -217,6 +219,12 @@ class DownloadBar:
 
     def update_progress(self, progress):
         """更新下载进度"""
+        # 进度条转变
+        if not self.started:
+            self.started = True
+            self.progressbar.stop()
+            self.progressbar.config(mode="determinate")
+
         self.progressbar["value"] = progress
         self.progress_label.config(text=f"{progress:.2f}%")
 

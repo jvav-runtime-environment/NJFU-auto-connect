@@ -2,14 +2,15 @@
 
 import sys
 import time
+import logging
 import requests
 import threading
 import subprocess
-import logging as lg
+
+lg = logging.getLogger("更新")
 
 from utils import pathManager
 from utils.createStartUp import is_exe
-from tkinter import messagebox
 from tkinter import messagebox
 
 
@@ -42,21 +43,21 @@ def check_update():
     global CURRENT_VERSION, CHECK_UPDATE_URL
 
     try:
-        lg.info("更新 -> 检查更新中")
+        lg.info("检查更新中")
         response = requests.get(CHECK_UPDATE_URL)
         response.raise_for_status()
 
         data = response.json()
         latest_version = data["tag_name"]
-        lg.info(f"更新 -> 当前版本: {CURRENT_VERSION}")
-        lg.info(f"更新 -> 最新版本: {latest_version}")
+        lg.info(f"当前版本: {CURRENT_VERSION}")
+        lg.info(f"最新版本: {latest_version}")
 
         if latest_version > CURRENT_VERSION:
             return (True, data)
         return (False, None)
 
     except requests.RequestException:
-        lg.warning("更新 -> 检查更新失败")
+        lg.warning("检查更新失败")
         return (False, None)
 
 
@@ -69,16 +70,16 @@ def download(file_info, stats_callback=lambda finished, success, progress: None)
     update_path.mkdir(parents=True, exist_ok=True)
     update_file.unlink(missing_ok=True)
 
-    lg.info("更新 -> 开始下载最新版本")
-    lg.info(f"更新 -> 文件大小: {size / 1024 / 1024:.2f} MB")
+    lg.info("--开始下载--")
+    lg.info(f"文件大小: {size / 1024 / 1024:.2f} MB")
 
     # 每个代理尝试下载一次
     success = False
     for proxy in PROXY:
         if proxy:
-            lg.info(f"更新 -> 使用代理: {proxy}")
+            lg.info(f"使用代理: {proxy}")
         else:
-            lg.info(f"更新 -> 未使用代理")
+            lg.info(f"未使用代理")
 
         download_url = proxy + url
         percent = 0
@@ -108,30 +109,30 @@ def download(file_info, stats_callback=lambda finished, success, progress: None)
             break
 
         except requests.RequestException:
-            lg.warning("更新 -> 下载失败")
-            lg.warning("更新 -> 错误信息\n", exc_info=True)
+            lg.warning("下载失败")
+            lg.warning("错误信息\n", exc_info=True)
             update_file.unlink(missing_ok=True)
 
         except Exception:
-            lg.warning("更新 -> 未知错误")
-            lg.warning("更新 -> 错误信息\n", exc_info=True)
+            lg.warning("未知错误")
+            lg.warning("错误信息\n", exc_info=True)
             update_file.unlink(missing_ok=True)
 
     # 结束时调用回调函数通知完成
     stats_callback(True, success, 100)
+    lg.info("--下载完成--")
 
     if success:
-        lg.info("更新 -> 结束, 下载完成")
+        lg.info("下载成功")
         return True
     else:
-        lg.info("更新 -> 结束, 全部失败")
+        lg.info("全部失败")
         return False
 
 
 def start_download_thread(file_info, status_callback=lambda finished, success, progress: None):
     download_thread = threading.Thread(target=download, args=(file_info, status_callback))
     download_thread.daemon = True
-    lg.info("更新 -> 下载线程启动")
     download_thread.start()
 
 
@@ -144,19 +145,19 @@ def check_and_apply_update():
 
     # 是否有更新
     if not have_update:
-        lg.info("更新 -> 已更新")
-        lg.info("更新 -> 移除更新文件")
+        lg.info("已更新")
+        lg.info("移除更新文件")
         update_bat_file.unlink(missing_ok=True)
         update_file.unlink(missing_ok=True)
 
     elif update_file.exists() and update_file.stat().st_size == data["assets"][0]["size"]:
-        lg.info("更新 -> 检测到更新文件")
+        lg.info("检测到更新文件")
         update_bat_file.touch()
         update_bat_file.write_text(update_cmd)
 
         subprocess.Popen(f'start "updating..." "{update_bat_file}"', shell=True)
 
-        lg.info("更新 -> 即将执行更新, 结束程序")
+        lg.info("即将执行更新, 结束程序")
         sys.exit(0)
 
 

@@ -9,17 +9,19 @@ from utils import update
 
 
 import tray
+import logging
 import traceback
-import logging as lg
 from tkinter import messagebox
 
+lg = logging.getLogger("主程序")
 
 try:
-    lg.info("主程序 -> 启动")
+    lg.info("启动")
     update.check_and_apply_update()
 
     tray.run()
+    lg.info("结束")
 except Exception:
-    lg.critical("主程序 -> 未知错误")
-    lg.critical("主程序 -> 错误信息:\n", exc_info=True)
+    lg.critical("未知错误")
+    lg.critical("错误信息:\n", exc_info=True)
     messagebox.showerror("未知的内部错误:\n", traceback.format_exc())

@@ -2,18 +2,19 @@
 
 import json
 import requests
-import logging as lg
+import logging
 
 from utils import network
 from utils import configManager
+
+lg = logging.getLogger("登录")
 
 
 def get_json_data(text: str):
     """获取text中大括号包括的内容"""
     start = text.find("{")
     end = text.rfind("}")
-    lg.debug(f"登录(文本处理) -> 原始数据: {text[start : end + 1]}")
-
+    lg.debug(f"解析后数据: {text[start : end + 1]}")
     return text[start : end + 1]
 
 
@@ -42,8 +43,8 @@ def login(username, password, platform):
     }
 
     r = requests.get(login_api, params=data)
-    lg.info(f"登录 -> 响应代码: {r.status_code}")
-    lg.debug(f"登录 -> 原始响应:\n{r.text}")
+    lg.info(f"响应代码: {r.status_code}")
+    lg.debug(f"原始响应:\n{r.text}")
     r.raise_for_status()
 
     r_json = json.loads(get_json_data(r.text))
@@ -59,8 +60,8 @@ def is_connected():
     check_url = config["check_url"]  # 检查url
 
     r = requests.get(check_url)
-    lg.info(f"登录(检测) -> 响应代码: {r.status_code}")
-    lg.debug(f"登录(检测) -> 原始响应:\n{r.text}")
+    lg.info(f"(检测)响应代码: {r.status_code}")
+    lg.debug(f"(检测)原始响应:\n{r.text}")
     r.raise_for_status()
 
     if "上网登录页" in r.text:

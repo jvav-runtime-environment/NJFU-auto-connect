@@ -13,7 +13,7 @@ lg.basicConfig(
     filename=log_path,
     filemode="a",
     level=lg.INFO,
-    format="[%(asctime)s] [%(levelname)s] %(message)s",
+    format="[%(asctime)s] [t-%(thread)s] [%(levelname)s] %(name)s -> %(message)s",
     datefmt="%Y-%m-%d %H:%M:%S",
     encoding="utf-8",
 )

@@ -2,8 +2,10 @@
 
 import copy
 import json
-import logging as lg
+import logging
 from utils.pathManager import config_path
+
+lg = logging.getLogger("配置")
 
 
 def get_default():
@@ -23,7 +25,7 @@ def get_raw_config():
 
 def load_config():
     """读取配置文件"""
-    lg.info("配置管理器 -> 读取配置文件")
+    lg.info("读取配置文件")
     global config, raw_config
 
     try:
@@ -44,8 +46,8 @@ def load_config():
         assert "startup" in config
 
     except (KeyError, json.JSONDecodeError, AssertionError):
-        lg.warning("配置管理器 -> 配置文件损坏, 重置配置文件")
-        lg.warning("配置管理器 -> 错误信息\n", exc_info=True)
+        lg.warning("配置文件损坏, 重置配置文件")
+        lg.warning("错误信息\n", exc_info=True)
 
         # 解析默认配置
         raw_config = get_default()
@@ -54,12 +56,12 @@ def load_config():
         config["check_url"] = config["check_url"].format(serverip=config["serverip"])
         return config
 
-    lg.info("配置管理器 -> 读取完成")
+    lg.info("读取完成")
 
 
 def save_config(config):
     # 保存配置文件
-    lg.info("配置管理器 -> 保存配置文件")
+    lg.info("保存配置文件")
     config_path.write_text(json.dumps(config))
     load_config()  # 重新加载配置文件
 
@@ -80,7 +82,7 @@ basic_config = {  # 默认配置
 }
 
 if not config_path.exists():
-    lg.warning("配置管理器 -> 配置文件不存在, 创建默认配置文件")
+    lg.warning("配置文件不存在, 创建默认配置文件")
     config_path.touch()
     config_path.write_text(json.dumps(basic_config))
 

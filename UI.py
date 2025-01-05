@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
-import logging as lg
+
 
 from utils import configManager
 from utils import createStartUp
@@ -200,7 +200,6 @@ class DownloadBar:
     def on_close(self):
         """接管关闭事件"""
         self.foreground = False
-        lg.info("更新 -> 进度条关闭, 继续下载")
         self.window.destroy()
 
     def create_progressbar(self):

@@ -2,8 +2,11 @@
 
 import uuid
 import socket
+import logging
 import subprocess
-import logging as lg
+
+
+lg = logging.getLogger("网络信息")
 
 
 def get_wifi_info():
@@ -36,7 +39,7 @@ def get_wifi_info():
     # 替换中文冒号
     info = [i.replace("：", ":") for i in info]
 
-    lg.debug(f"网络状态 -> 信息:\n{info}")
+    lg.debug(f"信息:\n{info}")
 
     dic = {}
     for i in info:
@@ -44,7 +47,7 @@ def get_wifi_info():
             key, value = i.split(":", 1)
             dic[key] = value
         except ValueError:
-            lg.warning(f"网络状态 -> 信息格式错误:\n{i}")
+            lg.warning(f"信息格式错误:\n{i}")
 
     return dic
 
@@ -52,12 +55,12 @@ def get_wifi_info():
 def get_mac():
     """获取MAC地址"""
     mac = hex(uuid.getnode())[2:]
-    lg.debug(f"网络状态 -> MAC地址:\n{mac}")
+    lg.debug(f"MAC地址:\n{mac}")
     return mac
 
 
 def get_ip():
     """获取IP地址"""
     ip = socket.gethostbyname(socket.gethostname())
-    lg.debug(f"网络状态 -> IP地址:\n{ip}")
+    lg.debug(f"IP地址:\n{ip}")
     return ip

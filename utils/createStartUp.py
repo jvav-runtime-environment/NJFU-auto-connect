@@ -2,8 +2,10 @@
 
 import sys
 import winreg
-import logging as lg
+import logging
 from utils.pathManager import current_dir, exe_path
+
+lg = logging.getLogger("启动项")
 
 try:
     if __nuitka_binary_dir is not None:  # type: ignore
@@ -19,8 +21,8 @@ if is_exe:
 else:
     startup_cmd = f'"{sys.executable}" "{current_dir}\\main.py"'
 
-lg.info(f"启动项 -> 版本: {'打包'if is_exe else '源代码'}")
-lg.debug(f"启动项 -> 启动路径: {startup_cmd}")
+lg.info(f"{'打包' if is_exe else '源代码'} 版本")
+lg.debug(f"启动路径: {startup_cmd}")
 
 
 def create():
@@ -30,11 +32,11 @@ def create():
         sub_key = "Software\\Microsoft\\Windows\\CurrentVersion\\Run"
         with winreg.OpenKey(key, sub_key, 0, winreg.KEY_ALL_ACCESS) as key:
             winreg.SetValueEx(key, "NJFUAutoConnect", 0, winreg.REG_SZ, startup_cmd)
-        lg.info("启动项 -> 已创建")
+        lg.info("已创建")
 
     except Exception:
-        lg.error("启动项 -> 创建失败")
-        lg.error(f"启动项 -> 错误信息:\n", exc_info=True)
+        lg.error("创建失败")
+        lg.error("错误信息:\n", exc_info=True)
 
 
 def remove():
@@ -44,11 +46,11 @@ def remove():
         sub_key = "Software\\Microsoft\\Windows\\CurrentVersion\\Run"
         with winreg.OpenKey(key, sub_key, 0, winreg.KEY_ALL_ACCESS) as key:
             winreg.DeleteValue(key, "NJFUAutoConnect")
-        lg.info("启动项 -> 已移除")
+        lg.info("已移除")
 
     except FileNotFoundError:
-        lg.warning(f"启动项 -> 移除中未找到键值")
+        lg.warning("移除中未找到键值")
 
     except Exception:
-        lg.error("启动项 -> 移除失败")
-        lg.error(f"启动项 -> 错误信息:\n", exc_info=True)
+        lg.error("移除失败")
+        lg.error("错误信息:\n", exc_info=True)

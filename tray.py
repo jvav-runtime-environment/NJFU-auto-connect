@@ -1,11 +1,17 @@
 import time
+import logging
 import requests
 import threading
 import traceback
-import logging as lg
 from PIL import Image
 from tkinter import messagebox
 from pystray import Icon, Menu, MenuItem
+
+login_lg = logging.getLogger("登录线程")
+notify_lg = logging.getLogger("通知线程")
+ui_lg = logging.getLogger("UI线程")
+update_lg = logging.getLogger("更新线程")
+
 
 from utils import configManager, network, connect, pathManager, update
 import UI
@@ -30,6 +36,8 @@ def login_proc():
     """登录方法"""
     global stop_event
 
+    login_lg.info("启动")
+
     config = configManager.get_config()
     username = config["username"]
     password = config["password"]
@@ -41,15 +49,18 @@ def login_proc():
         try:
             wifi_info = network.get_wifi_info()
 
-            if not "SSID" in wifi_info:  # 连接到网络
+            # 连接到网络
+            if not "SSID" in wifi_info:
                 stop_event.wait(5)
                 continue
 
-            if not wifi_info["SSID"] == wifiname:  # 连接到指定网络
+            # 连接到指定网络
+            if not wifi_info["SSID"] == wifiname:
                 stop_event.wait(60)
                 continue
 
-            if not connect.is_connected():  # 未连接到校园网
+            # 未连接到校园网
+            if not connect.is_connected():
                 success, msg = connect.login(username, password, platform)
                 if success:
                     notify("连接成功", "成功连接到校园网")
@@ -59,18 +70,20 @@ def login_proc():
             stop_event.wait(int(interval * 60))
 
         except (requests.ConnectionError, requests.HTTPError) as e:
-            lg.warning("登录线程 -> 连接错误")
-            lg.warning("登录线程 -> 错误信息:\n", exc_info=True)
+            login_lg.warning("连接错误")
+            login_lg.warning("错误信息:\n", exc_info=True)
 
             # 询问是否重试
             if not messagebox.askretrycancel("连接失败", f"无法连接到服务器:\n{e}"):
                 break
 
         except Exception:
-            lg.error("登录线程 -> 未知错误")
-            lg.error("登录线程 -> 错误信息:\n", exc_info=True)
+            login_lg.error("未知错误")
+            login_lg.error("错误信息:\n", exc_info=True)
             messagebox.showerror("未知的内部错误:\n", traceback.format_exc())
             break
+
+    login_lg.info("结束")
 
 
 stop_event = threading.Event()
@@ -146,7 +159,6 @@ def create_work_thread():
 
     main_thread = threading.Thread(target=login_proc)
     main_thread.daemon = True
-    lg.info("主任务 -> 启动")
     main_thread.start()
 
 
@@ -171,7 +183,6 @@ def stop_work_thread():
     menu.enable_button(0, True)
     menu.enable_button(1, False)
     menu.update()
-    lg.info("主任务 -> 结束")
 
 
 def notify(title, message):
@@ -183,8 +194,8 @@ def notify(title, message):
             time.sleep(5)
             tray.remove_notification()
         except Exception:
-            lg.error("通知线程 -> 未知错误")
-            lg.error("通知线程 -> 错误信息:\n", exc_info=True)
+            notify_lg.error("通知线程 -> 未知错误")
+            notify_lg.error("通知线程 -> 错误信息:\n", exc_info=True)
 
     notify_thread = threading.Thread(target=notify_proc)
     notify_thread.daemon = True
@@ -194,7 +205,6 @@ def notify(title, message):
 def stop_tray():
     """结束程序"""
     tray.stop()
-    lg.info("主程序 -> 结束")
 
 
 def start_ui_thread():
@@ -202,16 +212,18 @@ def start_ui_thread():
 
     def ui_proc():
         try:
+            ui_lg.info("启动")
+
             ui = UI.MainUI(configManager.get_raw_config())
             ui.show()
-            lg.info("UI线程 -> 结束")
+
+            ui_lg.info("结束")
         except Exception:
-            lg.error("UI线程 -> 未知错误")
-            lg.error("UI线程 -> 错误信息:\n", exc_info=True)
+            ui_lg.error("未知错误")
+            ui_lg.error("错误信息:\n", exc_info=True)
 
     ui_thread = threading.Thread(target=ui_proc)
     ui_thread.daemon = True
-    lg.info("UI线程 -> 启动")
     ui_thread.start()
 
 
@@ -222,6 +234,8 @@ def start_update_thread():
         """线程函数"""
         finished = False
         success = False
+
+        update_lg.info("启动")
 
         def download_callback(d_finished, d_success, progress):
             """下载线程回调函数"""
@@ -249,15 +263,14 @@ def start_update_thread():
                 else:
                     messagebox.showerror("更新", "下载失败, 请检查网络后重试")
 
-            lg.info("更新 -> 线程结束")
-
         except Exception:
-            lg.error("更新 -> 未知错误(线程)")
-            lg.error("更新 -> 错误信息(线程):\n", exc_info=True)
+            update_lg.error("未知错误")
+            update_lg.error("错误信息:\n", exc_info=True)
+
+        update_lg.info("结束")
 
     update_thread = threading.Thread(target=update_proc)
     update_thread.daemon = True
-    lg.info("更新 -> 线程启动")
     update_thread.start()
 
 

@@ -13,7 +13,7 @@ from tkinter import messagebox
 from tkinter import messagebox
 
 
-CURRENT_VERSION = "v1.1.2"
+CURRENT_VERSION = "v1.2.0"
 CHECK_UPDATE_URL = "https://api.github.com/repos/jvav-runtime-environment/NJFU-auto-connect/releases/latest"
 PROXY = ["", "https://ghproxy.cc/"]  # 加速代理
 

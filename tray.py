@@ -41,20 +41,20 @@ def login_proc():
         try:
             wifi_info = network.get_wifi_info()
 
-            if "SSID" in wifi_info:  # 连接到网络
-                if wifi_info["SSID"] == wifiname:  # 连接到指定网络
-                    if not connect.is_connected():  # 未连接到校园网
-                        success, msg = connect.login(username, password, platform)
-                        if success:
-                            notify("连接成功", "成功连接到校园网")
-                        else:
-                            notify("连接失败", "原因: " + msg)
-                else:
-                    stop_event.wait(60)
-                    continue
-            else:
+            if not "SSID" in wifi_info:  # 连接到网络
                 stop_event.wait(5)
                 continue
+
+            if not wifi_info["SSID"] == wifiname:  # 连接到指定网络
+                stop_event.wait(60)
+                continue
+
+            if not connect.is_connected():  # 未连接到校园网
+                success, msg = connect.login(username, password, platform)
+                if success:
+                    notify("连接成功", "成功连接到校园网")
+                else:
+                    notify("连接失败", "原因: " + msg)
 
             stop_event.wait(int(interval * 60))
 
@@ -235,20 +235,19 @@ def start_update_thread():
             bar = UI.DownloadBar()
 
             agree, data = update.check_and_ask_for_update()
-            if not agree:
-                return
+            if agree:
 
-            update.start_download_thread(data, download_callback)
-            bar.show()
+                update.start_download_thread(data, download_callback)
+                bar.show()
 
-            # 等待下载完成
-            while not finished:
-                pass
+                # 等待下载完成
+                while not finished:
+                    pass
 
-            if success:
-                messagebox.showinfo("更新", "下载完成, 程序再次启动时将完成更新")
-            else:
-                messagebox.showerror("更新", "下载失败, 请检查网络后重试")
+                if success:
+                    messagebox.showinfo("更新", "下载完成, 程序再次启动时将完成更新")
+                else:
+                    messagebox.showerror("更新", "下载失败, 请检查网络后重试")
 
             lg.info("更新 -> 线程结束")
 

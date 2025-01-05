@@ -47,7 +47,7 @@ def load_config():
 
     except (KeyError, json.JSONDecodeError, AssertionError):
         lg.warning("配置文件损坏, 重置配置文件")
-        lg.warning("错误信息\n", exc_info=True)
+        lg.exception("错误信息:\n")
 
         # 解析默认配置
         raw_config = get_default()

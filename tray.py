@@ -71,7 +71,7 @@ def login_proc():
 
         except (requests.ConnectionError, requests.HTTPError) as e:
             login_lg.warning("连接错误")
-            login_lg.warning("错误信息:\n", exc_info=True)
+            login_lg.exception("错误信息:\n")
 
             # 询问是否重试
             if not messagebox.askretrycancel("连接失败", f"无法连接到服务器:\n{e}"):
@@ -79,7 +79,7 @@ def login_proc():
 
         except Exception:
             login_lg.error("未知错误")
-            login_lg.error("错误信息:\n", exc_info=True)
+            login_lg.exception("错误信息:\n")
             messagebox.showerror("未知的内部错误:\n", traceback.format_exc())
             break
 
@@ -195,7 +195,7 @@ def notify(title, message):
             tray.remove_notification()
         except Exception:
             notify_lg.error("通知线程 -> 未知错误")
-            notify_lg.error("通知线程 -> 错误信息:\n", exc_info=True)
+            notify_lg.exception("通知线程 -> 错误信息:\n")
 
     notify_thread = threading.Thread(target=notify_proc)
     notify_thread.daemon = True
@@ -220,7 +220,7 @@ def start_ui_thread():
             ui_lg.info("结束")
         except Exception:
             ui_lg.error("未知错误")
-            ui_lg.error("错误信息:\n", exc_info=True)
+            ui_lg.exception("错误信息:\n")
 
     ui_thread = threading.Thread(target=ui_proc)
     ui_thread.daemon = True
@@ -265,7 +265,7 @@ def start_update_thread():
 
         except Exception:
             update_lg.error("未知错误")
-            update_lg.error("错误信息:\n", exc_info=True)
+            update_lg.exception("错误信息:\n")
 
         update_lg.info("结束")
 

@@ -110,12 +110,12 @@ def download(file_info, stats_callback=lambda finished, success, progress: None)
 
         except requests.RequestException:
             lg.warning("下载失败")
-            lg.warning("错误信息\n", exc_info=True)
+            lg.exception("错误信息\n")
             update_file.unlink(missing_ok=True)
 
         except Exception:
             lg.warning("未知错误")
-            lg.warning("错误信息\n", exc_info=True)
+            lg.exception("错误信息\n")
             update_file.unlink(missing_ok=True)
 
     # 结束时调用回调函数通知完成

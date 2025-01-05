@@ -23,5 +23,5 @@ try:
     lg.info("结束")
 except Exception:
     lg.critical("未知错误")
-    lg.critical("错误信息:\n", exc_info=True)
+    lg.exception("错误信息:\n")
     messagebox.showerror("未知的内部错误:\n", traceback.format_exc())

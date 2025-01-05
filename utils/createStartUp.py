@@ -36,7 +36,7 @@ def create():
 
     except Exception:
         lg.error("创建失败")
-        lg.error("错误信息:\n", exc_info=True)
+        lg.exception("错误信息:\n")
 
 
 def remove():
@@ -53,4 +53,4 @@ def remove():
 
     except Exception:
         lg.error("移除失败")
-        lg.error("错误信息:\n", exc_info=True)
+        lg.exception("错误信息:\n")
